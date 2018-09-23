@@ -12,7 +12,7 @@
             <b-form-input id="input-small" v-model.number="simulation.daysToSimulate" size="sm" type="number"></b-form-input>
             <div class="text-danger" v-if="!$v.simulation.daysToSimulate.required">Debe ingresar un valor</div>
             <div class="text-danger" v-if="!$v.simulation.daysToSimulate.integer">Debe ingresar un entero</div>
-            <div class="text-danger" v-if="!$v.simulation.daysToSimulate.maxValue">Debe ingresar un valor menor o igual a 5000</div>
+            <div class="text-danger" v-if="!$v.simulation.daysToSimulate.maxValue">Debe ingresar un valor menor o igual a 100000</div>
             <div class="text-danger" v-if="!$v.simulation.daysToSimulate.minValue">Debe ingresar un valor mayor o igual a 1</div>
           </b-col>
         </b-row>
@@ -70,57 +70,72 @@ export default {
         {
           label: 'Día',
           field: 'day',
-          type: 'number'
+          type: 'number',
+          filterOptions: {
+            enabled: true, 
+            trigger: 'enter',
+            placeholder: 'Filtrar dia'
+          }
         },
         {
           label: 'RND',
           field: 'rndEvent',
-          type: 'number'
+          type: 'decimal',
+          sortable: false
         },
         {
           label: 'Evento',
           field: 'event',
-          type: 'number'
+          type: 'text',
+          sortable: false
         },
         {
           label: 'RND',
           field: 'rndDelay',
-          type: 'number',
+          type: 'decimal',
+          sortable: false
         },
         {
           label: 'Demora',
           field: 'delay',
           type: 'number',
+          sortable: false
         },
         {
           label: 'P1 - Estado',
           field: 'press1State',
-          type: 'String',
+          type: 'text',
+          sortable: false
         },
         {
           label: 'P1 - Dia fin',
           field: 'press1EndDay',
           type: 'number',
+          sortable: false
         },
         {
           label: 'P2 - Estado',
           field: 'press2State',
-          type: 'String',
+          type: 'text',
+          sortable: false
         },
         {
           label: 'P2 - Dia fin',
           field: 'press2EndDay',
           type: 'number',
+          sortable: false
         },
         {
           label: 'Utilidad',
           field: 'profit',
           type: 'number',
+          sortable: false
         },
         {
           label: 'Utilidad Ac.',
           field: 'acProfit',
           type: 'number',
+          sortable: false
         }
       ],
       rows: [],
@@ -161,7 +176,7 @@ export default {
     simulation: {
       daysToSimulate: {
         required,
-        maxValue: maxValue(5000),
+        maxValue: maxValue(100000),
         minValue: minValue(1),
         numeric,
         integer
@@ -193,7 +208,7 @@ export default {
     simulate () {
       this.$v.$touch()
       if (this.$v.$invalid) {
-        alert('Uno de los campos no contiene los valores o valores correctos')
+        alert('Uno de los campos no contiene valores correctos')
       } else {
         this.hasBeenSimulated = true;
         this.rows = []
@@ -303,7 +318,6 @@ export default {
       } else {
         (r < 0.5) ? event = this.workType1.name  : (r > 0.49) ? event = this.noWorkArrived.name : null;
       }
-      
       return event;
     },
     getPreviousDay (row) {
