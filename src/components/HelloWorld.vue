@@ -70,12 +70,7 @@ export default {
         {
           label: 'Día',
           field: 'day',
-          type: 'number',
-          filterOptions: {
-            enabled: true, 
-            trigger: 'enter',
-            placeholder: 'Filtrar dia'
-          }
+          type: 'number'
         },
         {
           label: 'RND',
@@ -92,7 +87,7 @@ export default {
         {
           label: 'RND',
           field: 'rndDelay',
-          type: 'decimal',
+          type: 'text',
           sortable: false
         },
         {
