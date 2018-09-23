@@ -19,21 +19,21 @@
         <b-row class="mb-2">
           <b-col sm="7" class="text-left"><label>Utilidad adquirida por trabajos tipo 1:</label></b-col>
           <b-col sm="3">
-            <b-form-input id="input-small" v-model.number="works[0].utility" size="sm" type="number"></b-form-input>
-            <div class="text-danger" v-if="$v.simulation.works.utility.required">Debe ingresar un valor</div>
-            <div class="text-danger" v-if="!$v.simulation.works.utility.integer">Debe ingresar un entero</div>
-            <div class="text-danger" v-if="!$v.simulation.works.utility.maxValue">Debe ingresar un valor menor o igual a 10000000000</div>
-            <div class="text-danger" v-if="!$v.simulation.works.utility.minValue">Debe ingresar un valor mayor o igual a 0</div>
+            <b-form-input id="input-small" v-model.number="workType1.utility" size="sm" type="number"></b-form-input>
+            <div class="text-danger" v-if="!$v.workType1.utility.required">Debe ingresar un valor</div>
+            <div class="text-danger" v-if="!$v.workType1.utility.integer">Debe ingresar un entero</div>
+            <div class="text-danger" v-if="!$v.workType1.utility.maxValue">Debe ingresar un valor menor o igual a 10000000000</div>
+            <div class="text-danger" v-if="!$v.workType1.utility.minValue">Debe ingresar un valor mayor o igual a 0</div>
           </b-col>
         </b-row>
         <b-row class="mb-2">
           <b-col sm="7" class="text-left"><label>Utilidad adquirida por trabajos tipo 2:</label></b-col>
           <b-col sm="3">
-            <b-form-input id="input-small" v-model.number="works[1].utility" size="sm" type="number"></b-form-input>
-           <div class="text-danger" v-if="$v.simulation.works.utility.required">Debe ingresar un valor</div>
-            <div class="text-danger" v-if="!$v.simulation.works.utility.integer">Debe ingresar un entero</div>
-            <div class="text-danger" v-if="!$v.simulation.works.utility.maxValue">Debe ingresar un valor menor o igual a 10000000000</div>
-            <div class="text-danger" v-if="!$v.simulation.works.utility.minValue">Debe ingresar un valor mayor o igual a 0</div>
+            <b-form-input id="input-small" v-model.number="workType2.utility" size="sm" type="number"></b-form-input>
+            <div class="text-danger" v-if="!$v.workType2.utility.required">Debe ingresar un valor</div>
+            <div class="text-danger" v-if="!$v.workType2.utility.integer">Debe ingresar un entero</div>
+            <div class="text-danger" v-if="!$v.workType2.utility.maxValue">Debe ingresar un valor menor o igual a 10000000000</div>
+            <div class="text-danger" v-if="!$v.workType2.utility.minValue">Debe ingresar un valor mayor o igual a 0</div>
           </b-col>
         </b-row>
         <b-form-group label="¿Permitir pedidos tipo 2?">
@@ -64,9 +64,8 @@ export default {
       ],
       simulation: {
         daysToSimulate: 700,
-        enableType2Orders: true
+        enableType2Work: true
       },
-      currentDay: 1,
       columns: [
         {
           label: 'Día',
@@ -132,19 +131,29 @@ export default {
         rndDelay: 0,
         delay: '-',
         profit: 0,
-        acProfit: 0
+        acProfit: 0,
+        press1: {
+          state: 'L',
+          endDay: '-'
+        },
+        press2: {
+          state: 'L',
+          endDay: '-'
+        }
       },
-      works: [
-        { type: 1, utility: 400},
-        { type: 2, utility: 200}
-      ],
-      press1: {
-        state: null,
-        endDay: null
+      workType1: {
+        utility: 400,
+        name: 'Trabajo tipo 1',
+        workFinishedDesc: 'Fin trabajo tipo 1'
       },
-      press2: {
-        state: null,
-        endDay: null
+      workType2: {
+        utility: 200,
+        name: 'Trabajo tipo 2',
+        workFinishedDesc: 'Fin trabajo tipo 2'
+      },
+      noWorkArrived: {
+        utility: 0,
+        name: 'Sin trabajo'
       }
     };
   },
@@ -157,38 +166,119 @@ export default {
         numeric,
         integer
       },
-      enableType2Works: {
+      enableType2Work: {
         required,
-      },
-      works: {
-        utility: {
-          required,
-          maxValue: maxValue(5000),
-          minValue: minValue(1),
-          numeric,
-          integer
-        }
+      }
+    },
+    workType1: {
+      utility: {
+      required,
+      maxValue: maxValue(5000),
+      minValue: minValue(1),
+      numeric,
+      integer
+      }
+    },
+    workType2: {
+      utility: {
+      required,
+      maxValue: maxValue(5000),
+      minValue: minValue(1),
+      numeric,
+      integer
       }
     }
   },
   methods: {
     simulate () {
-      if (!this.simulation.enableType2Orders) {
-        this.day.enableType2Orders = 'No'
-      }
+      // if (!this.simulation.enableType2Work) {
+      //   this.day.enableType2Orders = 'No'
+      // }
       this.$v.$touch()
       if (this.$v.$invalid) {
         alert('Uno de los campos no contiene los valores o valores correctos')
       } else {
-      this.hasBeenSimulated = true;
-      this.rows = []
-      this.rows.push({ day: this.day.number, rndEvent: 0, event: '-', rndDelay: 0, delay: 0, press1State: 'L', press1EndDay: '-', press2State: 'L', press2EndDay: '-', profit: 0, acProfit: 0 })
-      while (this.currentDay <= this.simulation.daysToSimulate) {
-        let dayToPush = Object.assign({}, this.day)
-        
-      }
+        this.hasBeenSimulated = true;
+        this.rows = []
+        this.rows.push({ day: this.day.number, rndEvent: 0, event: '-', rndDelay: 0, delay: 0, press1State: 'L', press1EndDay: '-', press2State: 'L', press2EndDay: '-', profit: 0, acProfit: 0 })
+
+        for (let i = 1; i <= this.simulation.daysToSimulate; i++) {
+          let dayToPush = Object.assign({}, this.day)
+          let previousDay = this.getPreviousDay(this.rows[i-1]);
+          dayToPush.press1 = previousDay.press1;
+          dayToPush.press2 = previousDay.press2;
+          dayToPush.number = i;
+          dayToPush.rndEvent = this.getRandom();
+          let event = this.getIncomingEvent(dayToPush.rndEvent, previousDay, dayToPush.number);
+          dayToPush.event = event;
+
+          if (event === this.workType1.name || event === this.workType2.name) {
+            dayToPush.rndDelay = this.getRandom()
+            let delay = this.getDelay(dayToPush.rndDelay)
+            dayToPush.delay = delay;
+            if (previousDay.press1.state === 'L') {
+              dayToPush.press1.state = 'O'
+              dayToPush.press1.endDay = i + delay;
+              dayToPush.press2.state = previousDay.press2.state;
+              dayToPush.press2.endDay = previousDay.press2.endDay;
+            } else if (previousDay.press2.state === 'L') {
+              dayToPush.press2.state = 'O';
+              dayToPush.press2.endDay = i + delay;
+              dayToPush.press1.state = previousDay.press1.state;
+              dayToPush.press1.endDay = previousDay.press1.endDay;
+            } else {
+              dayToPush.press1.state = previousDay.press1.state;
+              dayToPush.press1.endDay = previousDay.press1.endDay;
+              dayToPush.press2.state = previousDay.press2.state;
+              dayToPush.press2.endDay = previousDay.press2.endDay;
+            }
+            dayToPush.profit = previousDay.profit;
+            dayToPush.acProfit = previousDay.acProfit;
+          } else if (event === this.workType1.workFinishedDesc) {
+            dayToPush.rndDelay = '-';
+            dayToPush.delay = '-';
+            dayToPush.press1.state = 'L';
+            dayToPush.press1.endDay = '-';
+            dayToPush.press2.state = previousDay.press2.state;
+            dayToPush.press2.endDay = previousDay.press2.endDay;
+            dayToPush.profit = this.workType1.utility;
+            dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
+          } else if (event === this.workType2.workFinishedDesc) {
+            dayToPush.rndDelay = '-';
+            dayToPush.delay = '-';
+            dayToPush.press2.state = 'L';
+            dayToPush.press2.endDay = '-';
+            dayToPush.press1.state = previousDay.press2.state;
+            dayToPush.press1.endDay = previousDay.press2.endDay;
+            dayToPush.profit = this.workType2.utility;
+            dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
+          } else if (event === this.noWorkArrived.name) {
+            dayToPush.rndDelay = '-';
+            dayToPush.delay = '-';
+            dayToPush.press2.state = previousDay.press2.state;
+            dayToPush.press2.endDay = previousDay.press2.endDay;
+            dayToPush.press1.state = previousDay.press2.state;
+            dayToPush.press1.endDay = previousDay.press2.endDay;
+            dayToPush.profit = previousDay.profit;
+            dayToPush.acProfit = previousDay.acProfit;
+          }
+
+        this.rows.push({ 
+        day: dayToPush.number, 
+        rndEvent: dayToPush.rndEvent, 
+        event: dayToPush.event, 
+        rndDelay: dayToPush.rndDelay, 
+        delay: dayToPush.delay, 
+        press1State: dayToPush.press1.state, press1EndDay: dayToPush.press1.endDay, 
+        press2State: dayToPush.press2.state, press2EndDay: dayToPush.press2.endDay, 
+        profit: 0, 
+        acProfit: 0 
+        })
+
+
+        }
       // this.$emit('clicked', this.rows[this.rows.length - 1].totalCostAcum)
-    }
+      }
     },
     getRandom () {
       let random = Math.random()
@@ -196,14 +286,37 @@ export default {
     },
     getDelay (r) {
       let delay = 0;
-      (r < 0.25) ? delay = 2 : null;
-      (r > 0.24 && r < 0.5) ? delay = 3 : null;
-      (r > 0.49 && r < 0.7) ? delay = 4 : null;
-      (r > 0.69) ? delay = 5 : null;
+      (r < 0.25) ? delay = 2 : (r > 0.24 && r < 0.5) ? delay = 3 : (r > 0.49 && r < 0.7) ? delay = 4 : (r > 0.69) ? delay = 5 : null;
       return delay;
     },
-    getEvent (r) {
-      let event
+    getIncomingEvent (r, previousDay, dayToPushNumber) {
+      let event = '-';
+      if (dayToPushNumber === previousDay.press1.endDay) {
+        event = this.workType1.workFinishedDesc
+      } else if (dayToPushNumber === previousDay.press2.endDay) {
+        event = this.workType2.workFinishedDesc
+      } else if (this.simulation.enableType2Work) {
+      (r < 0.5) ? event = this.workType1.name : (r > 0.49 && r < 0.7) ? event = this.workType2.name  : (r > 0.69) ? event = this.noWorkArrived.name : null;
+      } else {
+        (r < 0.5) ? event = this.workType1.name  : (r > 0.49) ? event = this.noWorkArrived.name : null;
+      }
+      
+      return event;
+    },
+    getPreviousDay (row) {
+      let previousDay =  Object.assign({}, this.day);
+      previousDay.number = row.day;
+      previousDay.rndEvent = row.rndEvent;
+      previousDay.event = row.event;
+      previousDay.rndDelay = row.rndDelay
+      previousDay.delay = row.delay;
+      previousDay.press1.state = row.press1State;
+      previousDay.press1.endDay = row.press1EndDay;
+      previousDay.press2.state = row.press2State;
+      previousDay.press2.endDay = row.press2EndDay;
+      previousDay.profit = row.profit;
+      previousDay.acProfit = row.acProfit;
+      return previousDay;
     }
   }
 }
