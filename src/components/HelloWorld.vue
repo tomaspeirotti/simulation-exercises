@@ -22,7 +22,7 @@
             <b-form-input id="input-small" v-model.number="workType1.utility" size="sm" type="number"></b-form-input>
             <div class="text-danger" v-if="!$v.workType1.utility.required">Debe ingresar un valor</div>
             <div class="text-danger" v-if="!$v.workType1.utility.integer">Debe ingresar un entero</div>
-            <div class="text-danger" v-if="!$v.workType1.utility.maxValue">Debe ingresar un valor menor o igual a 10000000000</div>
+            <div class="text-danger" v-if="!$v.workType1.utility.maxValue">Debe ingresar un valor menor o igual a 100000</div>
             <div class="text-danger" v-if="!$v.workType1.utility.minValue">Debe ingresar un valor mayor o igual a 0</div>
           </b-col>
         </b-row>
@@ -32,7 +32,7 @@
             <b-form-input id="input-small" v-model.number="workType2.utility" size="sm" type="number"></b-form-input>
             <div class="text-danger" v-if="!$v.workType2.utility.required">Debe ingresar un valor</div>
             <div class="text-danger" v-if="!$v.workType2.utility.integer">Debe ingresar un entero</div>
-            <div class="text-danger" v-if="!$v.workType2.utility.maxValue">Debe ingresar un valor menor o igual a 10000000000</div>
+            <div class="text-danger" v-if="!$v.workType2.utility.maxValue">Debe ingresar un valor menor o igual a 100000</div>
             <div class="text-danger" v-if="!$v.workType2.utility.minValue">Debe ingresar un valor mayor o igual a 0</div>
           </b-col>
         </b-row>
@@ -173,7 +173,7 @@ export default {
     workType1: {
       utility: {
       required,
-      maxValue: maxValue(5000),
+      maxValue: maxValue(100000),
       minValue: minValue(1),
       numeric,
       integer
@@ -182,7 +182,7 @@ export default {
     workType2: {
       utility: {
       required,
-      maxValue: maxValue(5000),
+      maxValue: maxValue(100000),
       minValue: minValue(1),
       numeric,
       integer
@@ -191,9 +191,6 @@ export default {
   },
   methods: {
     simulate () {
-      // if (!this.simulation.enableType2Work) {
-      //   this.day.enableType2Orders = 'No'
-      // }
       this.$v.$touch()
       if (this.$v.$invalid) {
         alert('Uno de los campos no contiene los valores o valores correctos')
@@ -213,9 +210,13 @@ export default {
           dayToPush.event = event;
 
           if (event === this.workType1.name || event === this.workType2.name) {
-            dayToPush.rndDelay = this.getRandom()
-            let delay = this.getDelay(dayToPush.rndDelay)
-            dayToPush.delay = delay;
+            let delay;
+            if (previousDay.press1.state === 'L' || previousDay.press2.state === 'L') {
+              dayToPush.rndDelay = this.getRandom()
+              delay = this.getDelay(dayToPush.rndDelay)
+              dayToPush.delay = delay;
+            }
+            
             if (previousDay.press1.state === 'L') {
               dayToPush.press1.state = 'O'
               dayToPush.press1.endDay = i + delay;
@@ -226,14 +227,16 @@ export default {
               dayToPush.press2.endDay = i + delay;
               dayToPush.press1.state = previousDay.press1.state;
               dayToPush.press1.endDay = previousDay.press1.endDay;
-            } else {
+            } else if (previousDay.press1.state === 'O' && previousDay.press2.state === 'O') {
               dayToPush.press1.state = previousDay.press1.state;
               dayToPush.press1.endDay = previousDay.press1.endDay;
               dayToPush.press2.state = previousDay.press2.state;
               dayToPush.press2.endDay = previousDay.press2.endDay;
             }
-            dayToPush.profit = previousDay.profit;
+
+            dayToPush.profit = 0;
             dayToPush.acProfit = previousDay.acProfit;
+
           } else if (event === this.workType1.workFinishedDesc) {
             dayToPush.rndDelay = '-';
             dayToPush.delay = '-';
@@ -248,8 +251,8 @@ export default {
             dayToPush.delay = '-';
             dayToPush.press2.state = 'L';
             dayToPush.press2.endDay = '-';
-            dayToPush.press1.state = previousDay.press2.state;
-            dayToPush.press1.endDay = previousDay.press2.endDay;
+            dayToPush.press1.state = previousDay.press1.state;
+            dayToPush.press1.endDay = previousDay.press1.endDay;
             dayToPush.profit = this.workType2.utility;
             dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
           } else if (event === this.noWorkArrived.name) {
@@ -257,9 +260,9 @@ export default {
             dayToPush.delay = '-';
             dayToPush.press2.state = previousDay.press2.state;
             dayToPush.press2.endDay = previousDay.press2.endDay;
-            dayToPush.press1.state = previousDay.press2.state;
-            dayToPush.press1.endDay = previousDay.press2.endDay;
-            dayToPush.profit = previousDay.profit;
+            dayToPush.press1.state = previousDay.press1.state;
+            dayToPush.press1.endDay = previousDay.press1.endDay;
+            dayToPush.profit = 0;
             dayToPush.acProfit = previousDay.acProfit;
           }
 
@@ -271,8 +274,8 @@ export default {
         delay: dayToPush.delay, 
         press1State: dayToPush.press1.state, press1EndDay: dayToPush.press1.endDay, 
         press2State: dayToPush.press2.state, press2EndDay: dayToPush.press2.endDay, 
-        profit: 0, 
-        acProfit: 0 
+        profit: dayToPush.profit, 
+        acProfit: dayToPush.acProfit 
         })
 
 
