@@ -144,11 +144,13 @@ export default {
         acProfit: 0,
         press1: {
           state: 'L',
-          endDay: '-'
+          endDay: '-',
+          currentWorkType: null
         },
         press2: {
           state: 'L',
-          endDay: '-'
+          endDay: '-',
+          currentWorkType: null
         }
       },
       workType1: {
@@ -219,7 +221,7 @@ export default {
           let event = this.getIncomingEvent(dayToPush.rndEvent, previousDay, dayToPush.number);
           dayToPush.event = event;
 
-          if (event === this.workType1.name || event === this.workType2.name) {
+          if (event.desc === this.workType1.name || event.desc === this.workType2.name) {
             let delay;
             if (previousDay.press1.state === 'L' || previousDay.press2.state === 'L') {
               dayToPush.rndDelay = this.getRandom()
@@ -230,48 +232,58 @@ export default {
             if (previousDay.press1.state === 'L') {
               dayToPush.press1.state = 'O'
               dayToPush.press1.endDay = i + delay;
+              dayToPush.press1.currentWorkType = event.workType;
               dayToPush.press2.state = previousDay.press2.state;
               dayToPush.press2.endDay = previousDay.press2.endDay;
             } else if (previousDay.press2.state === 'L') {
               dayToPush.press2.state = 'O';
               dayToPush.press2.endDay = i + delay;
+              dayToPush.press2.currentWorkType = event.workType;
               dayToPush.press1.state = previousDay.press1.state;
               dayToPush.press1.endDay = previousDay.press1.endDay;
             } else if (previousDay.press1.state === 'O' && previousDay.press2.state === 'O') {
               dayToPush.press1.state = previousDay.press1.state;
               dayToPush.press1.endDay = previousDay.press1.endDay;
+              dayToPush.press1.workType = previousDay.press1.workType;
               dayToPush.press2.state = previousDay.press2.state;
               dayToPush.press2.endDay = previousDay.press2.endDay;
+              dayToPush.press2.workType = previousDay.press2.workType;
             }
 
             dayToPush.profit = 0;
             dayToPush.acProfit = previousDay.acProfit;
 
-          } else if (event === this.workType1.workFinishedDesc) {
+          } else if (event.desc === this.workType1.workFinishedDesc) {
             dayToPush.rndDelay = '-';
             dayToPush.delay = '-';
             dayToPush.press1.state = 'L';
             dayToPush.press1.endDay = '-';
+            dayToPush.press1.workType = null;
             dayToPush.press2.state = previousDay.press2.state;
             dayToPush.press2.endDay = previousDay.press2.endDay;
+            dayToPush.press2.workType = previousDay.press2.workType;
             dayToPush.profit = this.workType1.utility;
             dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
-          } else if (event === this.workType2.workFinishedDesc) {
+          } else if (event.desc === this.workType2.workFinishedDesc) {
             dayToPush.rndDelay = '-';
             dayToPush.delay = '-';
             dayToPush.press2.state = 'L';
             dayToPush.press2.endDay = '-';
+            dayToPush.press2.workType = null;
             dayToPush.press1.state = previousDay.press1.state;
             dayToPush.press1.endDay = previousDay.press1.endDay;
+            dayToPush.press1.workType = previousDay.press1.workType;
             dayToPush.profit = this.workType2.utility;
             dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
-          } else if (event === this.noWorkArrived.name) {
+          } else if (event.desc === this.noWorkArrived.name) {
             dayToPush.rndDelay = '-';
             dayToPush.delay = '-';
             dayToPush.press2.state = previousDay.press2.state;
             dayToPush.press2.endDay = previousDay.press2.endDay;
+            dayToPush.press2.workType = previousDay.press2.workType;
             dayToPush.press1.state = previousDay.press1.state;
             dayToPush.press1.endDay = previousDay.press1.endDay;
+            dayToPush.press1.workType = previousDay.press1.workType;
             dayToPush.profit = 0;
             dayToPush.acProfit = previousDay.acProfit;
           }
@@ -279,7 +291,7 @@ export default {
         this.rows.push({ 
         day: dayToPush.number, 
         rndEvent: dayToPush.rndEvent, 
-        event: dayToPush.event, 
+        event: dayToPush.event.desc, 
         rndDelay: dayToPush.rndDelay, 
         delay: dayToPush.delay, 
         press1State: dayToPush.press1.state, press1EndDay: dayToPush.press1.endDay, 
@@ -300,18 +312,58 @@ export default {
     getDelay (r) {
       let delay = 0;
       (r < 0.25) ? delay = 2 : (r > 0.24 && r < 0.5) ? delay = 3 : (r > 0.49 && r < 0.7) ? delay = 4 : (r > 0.69) ? delay = 5 : null;
+      
       return delay;
     },
     getIncomingEvent (r, previousDay, dayToPushNumber) {
-      let event = '-';
+
+      let event = {};
+      event.desc = '-';
+      event.workType = null;
+
       if (dayToPushNumber === previousDay.press1.endDay) {
-        event = this.workType1.workFinishedDesc
+
+        event.desc = previousDay.press1.currentWorkType.workFinishedDesc
+        // event.workType = previousDay.press1.currentWorkType
+
       } else if (dayToPushNumber === previousDay.press2.endDay) {
-        event = this.workType2.workFinishedDesc
+
+        event.desc = previousDay.press2.currentWorkType.workFinishedDesc
+        // event.workType = previousDay.press2.currentWorkType
+
       } else if (this.simulation.enableType2Work) {
-      (r < 0.5) ? event = this.workType1.name : (r > 0.49 && r < 0.7) ? event = this.workType2.name  : (r > 0.69) ? event = this.noWorkArrived.name : null;
+
+        if (r < 0.5) { 
+
+          event.workType = this.workType1
+          event.desc = this.workType1.name
+
+        } else if (r > 0.49 && r < 0.7) { 
+
+          event.desc = this.workType2.name 
+          event.workType = this.workType2
+
+        } else if (r > 0.69) {
+
+           event.desc = this.noWorkArrived.name
+           event.workType = this.noWorkArrived
+
+        }
+
       } else {
-        (r < 0.5) ? event = this.workType1.name  : (r > 0.49) ? event = this.noWorkArrived.name : null;
+        
+        if (r < 0.5) {
+
+          event.desc = this.workType1.name
+          event.workType = this.workType1
+
+        } else if (r > 0.49) { 
+
+          event.desc = this.noWorkArrived.name
+          event.workType = this.noWorkArrived
+
+        }
+
       }
       return event;
     },
@@ -319,7 +371,7 @@ export default {
       let previousDay =  Object.assign({}, this.day);
       previousDay.number = row.day;
       previousDay.rndEvent = row.rndEvent;
-      previousDay.event = row.event;
+      previousDay.event = row.event.desc;
       previousDay.rndDelay = row.rndDelay
       previousDay.delay = row.delay;
       previousDay.press1.state = row.press1State;
