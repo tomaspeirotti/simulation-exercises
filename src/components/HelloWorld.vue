@@ -68,6 +68,14 @@ export default {
         daysWithoutWorkAndEmptyPresses: 0,
         rejectedWork: 0
       },
+      intervals: {
+        workType1FromInterval: 0.0,
+        workType1ToInterval: 0.49,
+        workType2FromInterval: 0.5,
+        workType2ToInterval: 0.69,
+        noWorkFromInterval: 0.7,
+        noWorkToInterval: 0.99
+      },
       columns: [
         {
           label: 'Día',
@@ -328,8 +336,8 @@ export default {
             let daysWithoutWorkAndEmptyPressesPerc = Math.round((this.simulation.daysWithoutWorkAndEmptyPresses / this.simulation.daysToSimulate) * 100) * 100 / 100;
             console.log('[Trabajo rechazado: ' + rejectedWorkPerc + '% ]')
             console.log('[Dias sin trabajo y prensas vacías: '+ daysWithoutWorkAndEmptyPressesPerc + '% ]')
-            console.log('[Ganancia acumulada: $' + dayToPush.acProfit + ']')
-            console.log('[Ganancia promedio por dia: $' + Math.round((dayToPush.acProfit / this.simulation.daysToSimulate) * 100) / 100 + ']')
+            console.log('[Ganancia acumulada: $' + dayToPush.acProfit + ' ]')
+            console.log('[Ganancia promedio por dia: $' + Math.round((dayToPush.acProfit / this.simulation.daysToSimulate) * 100) / 100 + ' ]')
         } 
 
         }
@@ -360,21 +368,21 @@ export default {
         event.desc = previousDay.press1.currentWorkType.workFinishedDesc
       } else if (this.simulation.enableType2Work) {
         if (r === '-') r = this.getRandom();
-        if (r < 0.5) { 
+        if (r < this.intervals.workType2FromInterval) { 
           event.workType = this.workType1
           event.desc = this.workType1.name
-        } else if (r > 0.49 && r < 0.7) { 
+        } else if (r > this.intervals.workType1ToInterval && r < this.intervals.noWorkFromInterval) { 
           event.desc = this.workType2.name 
           event.workType = this.workType2
-        } else if (r > 0.69) {
+        } else if (r > this.intervals.workType2ToInterval) {
            event.desc = this.noWorkArrived.name
            event.workType = this.noWorkArrived
         }
       } else {
-        if (r < 0.5) {
+        if (r < this.intervals.workType2FromInterval) {
           event.desc = this.workType1.name
           event.workType = this.workType1
-        } else if (r > 0.49) { 
+        } else if (r > this.intervals.workType1ToInterval) { 
           event.desc = this.noWorkArrived.name
           event.workType = this.noWorkArrived
         }
