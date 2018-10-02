@@ -46,12 +46,12 @@
         <b-button class="btn btn-success" @click="simulate" :disabled="hasBeenSimulated">Simular  </b-button>
       </b-col>
     </b-row>
-    <vue-good-table :pagination-options="{enabled: true, mode: 'pages'}" styleClass="vgt-table condensed" theme="nocturnal" :columns="columns" :rows="rows"/>
+    <vue-good-table :pagination-options="{enabled: false, mode: 'pages'}" styleClass="vgt-table condensed" theme="nocturnal" :columns="columns" :rows="rows"/>
   </div>
 </template>
 
 <script>
-import { required, minValue, maxValue, numeric, integer, decimal, maxLength } from 'vuelidate/lib/validators'
+import { required, minValue, maxValue, numeric, integer } from 'vuelidate/lib/validators' //decimal, maxLength
 
 export default {
   name: 'my-component',
@@ -64,7 +64,9 @@ export default {
       ],
       simulation: {
         daysToSimulate: 700,
-        enableType2Work: true
+        enableType2Work: true,
+        daysWithoutWorkAndEmptyPresses: 0,
+        rejectedWork: 0
       },
       columns: [
         {
@@ -137,17 +139,21 @@ export default {
       day: {
         number: 0,
         rndEvent: 0,
-        event: '-',
+        event: {
+          desc: '-'
+        },
         rndDelay: 0,
         delay: '-',
         profit: 0,
         acProfit: 0,
         press1: {
+          name: 'Prensa 1',
           state: 'L',
           endDay: '-',
           currentWorkType: null
         },
         press2: {
+          name: 'Prensa 2',
           state: 'L',
           endDay: '-',
           currentWorkType: null
@@ -244,65 +250,93 @@ export default {
             } else if (previousDay.press1.state === 'O' && previousDay.press2.state === 'O') {
               dayToPush.press1.state = previousDay.press1.state;
               dayToPush.press1.endDay = previousDay.press1.endDay;
-              dayToPush.press1.workType = previousDay.press1.workType;
+              dayToPush.press1.currentWorkType = previousDay.press1.currentWorkType;
               dayToPush.press2.state = previousDay.press2.state;
               dayToPush.press2.endDay = previousDay.press2.endDay;
-              dayToPush.press2.workType = previousDay.press2.workType;
+              dayToPush.press2.currentWorkType = previousDay.press2.currentWorkType;
+
+              this.simulation.rejectedWork += 1;
             }
 
             dayToPush.profit = 0;
             dayToPush.acProfit = previousDay.acProfit;
-
-          } else if (event.desc === this.workType1.workFinishedDesc) {
+          
+          } else if (event.desc === this.workType1.workFinishedDesc || event.desc === this.workType2.workFinishedDesc || event.desc === 'Fin trabajo tipo 1 y 2') {
             dayToPush.rndDelay = '-';
             dayToPush.delay = '-';
-            dayToPush.press1.state = 'L';
-            dayToPush.press1.endDay = '-';
-            dayToPush.press1.workType = null;
-            dayToPush.press2.state = previousDay.press2.state;
-            dayToPush.press2.endDay = previousDay.press2.endDay;
-            dayToPush.press2.workType = previousDay.press2.workType;
-            dayToPush.profit = this.workType1.utility;
-            dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
-          } else if (event.desc === this.workType2.workFinishedDesc) {
-            dayToPush.rndDelay = '-';
-            dayToPush.delay = '-';
-            dayToPush.press2.state = 'L';
-            dayToPush.press2.endDay = '-';
-            dayToPush.press2.workType = null;
-            dayToPush.press1.state = previousDay.press1.state;
-            dayToPush.press1.endDay = previousDay.press1.endDay;
-            dayToPush.press1.workType = previousDay.press1.workType;
-            dayToPush.profit = this.workType2.utility;
-            dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
+            let press = this.getPressWithWorkFinished(dayToPush);
+            switch (press.name) {
+              case this.day.press1.name: 
+                dayToPush.press1.state = 'L';
+                dayToPush.press1.endDay = '-';
+                // dayToPush.press1.currentWorkType = null;
+                dayToPush.press2.state = previousDay.press2.state;
+                dayToPush.press2.endDay = previousDay.press2.endDay;
+                dayToPush.press2.currentWorkType = previousDay.press2.currentWorkType;
+                dayToPush.profit = press.currentWorkType.utility;
+                dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
+                break;
+              case this.day.press2.name: 
+                dayToPush.press2.state = 'L';
+                dayToPush.press2.endDay = '-';
+                // dayToPush.press2.currentWorkType = null;
+                dayToPush.press1.state = previousDay.press1.state;
+                dayToPush.press1.endDay = previousDay.press1.endDay;
+                dayToPush.press1.currentWorkType = previousDay.press1.currentWorkType;
+                dayToPush.profit = press.currentWorkType.utility;
+                dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
+                break;
+              case 'Prensa 1 y 2': 
+                dayToPush.press1.state = 'L';
+                dayToPush.press1.endDay = '-';
+                // dayToPush.press1.currentWorkType = null;
+                dayToPush.press2.state = 'L';
+                dayToPush.press2.endDay = '-';
+                // dayToPush.press2.currentWorkType = null;
+                dayToPush.profit = previousDay.press1.currentWorkType.utility + previousDay.press2.currentWorkType.utility;
+                dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
+                break;
+            }
           } else if (event.desc === this.noWorkArrived.name) {
             dayToPush.rndDelay = '-';
             dayToPush.delay = '-';
             dayToPush.press2.state = previousDay.press2.state;
             dayToPush.press2.endDay = previousDay.press2.endDay;
-            dayToPush.press2.workType = previousDay.press2.workType;
+            dayToPush.press2.currentWorkType = previousDay.press2.currentWorkType;
             dayToPush.press1.state = previousDay.press1.state;
             dayToPush.press1.endDay = previousDay.press1.endDay;
-            dayToPush.press1.workType = previousDay.press1.workType;
+            dayToPush.press1.currentWorkType = previousDay.press1.currentWorkType;
             dayToPush.profit = 0;
             dayToPush.acProfit = previousDay.acProfit;
+
+            (previousDay.press1.state === 'L' && previousDay.press2.state === 'L') ? this.simulation.daysWithoutWorkAndEmptyPresses += 1 : null;
           }
 
         this.rows.push({ 
-        day: dayToPush.number, 
-        rndEvent: dayToPush.rndEvent, 
-        event: dayToPush.event.desc, 
-        rndDelay: dayToPush.rndDelay, 
-        delay: dayToPush.delay, 
-        press1State: dayToPush.press1.state, press1EndDay: dayToPush.press1.endDay, 
-        press2State: dayToPush.press2.state, press2EndDay: dayToPush.press2.endDay, 
-        profit: dayToPush.profit, 
-        acProfit: dayToPush.acProfit 
+          day: dayToPush.number, 
+          rndEvent: dayToPush.rndEvent, 
+          event: dayToPush.event.desc, 
+          rndDelay: dayToPush.rndDelay, 
+          delay: dayToPush.delay, 
+          press1State: dayToPush.press1.state, press1EndDay: dayToPush.press1.endDay, 
+          press2State: dayToPush.press2.state, press2EndDay: dayToPush.press2.endDay, 
+          profit: dayToPush.profit, 
+          acProfit: dayToPush.acProfit 
         })
 
 
+        if (i === this.simulation.daysToSimulate) {
+            let rejectedWorkPerc = Math.round((this.simulation.rejectedWork / this.simulation.daysToSimulate) * 100) * 100 / 100;
+            let daysWithoutWorkAndEmptyPressesPerc = Math.round((this.simulation.daysWithoutWorkAndEmptyPresses / this.simulation.daysToSimulate) * 100) * 100 / 100;
+            console.log('[Trabajos rechazado: % ' + rejectedWorkPerc + ']')
+            console.log('[Dias sin trabajo y prensas vacías: % '+ daysWithoutWorkAndEmptyPressesPerc + ']')
+            console.log('[Ganancia acumulada: ' + dayToPush.acProfit + ']')
+            console.log('[Ganancia promedio por dia: ' + dayToPush.acProfit / this.simulation.daysToSimulate + ']')
+        } 
+
+
         }
-      // this.$emit('clicked', this.rows[this.rows.length - 1].totalCostAcum)
+      //  this.$emit('clicked', this.rows[this.rows.length - 1].totalCostAcum)
       }
     },
     getRandom () {
@@ -321,47 +355,30 @@ export default {
       event.desc = '-';
       event.workType = null;
 
-      if (dayToPushNumber === previousDay.press1.endDay) {
-
-        event.desc = previousDay.press1.currentWorkType.workFinishedDesc
-        // event.workType = previousDay.press1.currentWorkType
-
+      if (dayToPushNumber === previousDay.press2.endDay && dayToPushNumber === previousDay.press1.endDay) {
+        event.desc = 'Fin trabajo tipo 1 y 2'
       } else if (dayToPushNumber === previousDay.press2.endDay) {
-
         event.desc = previousDay.press2.currentWorkType.workFinishedDesc
-        // event.workType = previousDay.press2.currentWorkType
-
+      } else if (dayToPushNumber === previousDay.press1.endDay) {
+        event.desc = previousDay.press1.currentWorkType.workFinishedDesc
       } else if (this.simulation.enableType2Work) {
-
         if (r < 0.5) { 
-
           event.workType = this.workType1
           event.desc = this.workType1.name
-
         } else if (r > 0.49 && r < 0.7) { 
-
           event.desc = this.workType2.name 
           event.workType = this.workType2
-
         } else if (r > 0.69) {
-
            event.desc = this.noWorkArrived.name
            event.workType = this.noWorkArrived
-
         }
-
       } else {
-        
         if (r < 0.5) {
-
           event.desc = this.workType1.name
           event.workType = this.workType1
-
         } else if (r > 0.49) { 
-
           event.desc = this.noWorkArrived.name
           event.workType = this.noWorkArrived
-
         }
 
       }
@@ -371,7 +388,7 @@ export default {
       let previousDay =  Object.assign({}, this.day);
       previousDay.number = row.day;
       previousDay.rndEvent = row.rndEvent;
-      previousDay.event = row.event.desc;
+      previousDay.event.desc = row.event.desc;
       previousDay.rndDelay = row.rndDelay
       previousDay.delay = row.delay;
       previousDay.press1.state = row.press1State;
@@ -381,6 +398,28 @@ export default {
       previousDay.profit = row.profit;
       previousDay.acProfit = row.acProfit;
       return previousDay;
+    },
+    getPressWithWorkFinished (dayToPush) {
+      let press = {};
+      let number = dayToPush.number;
+      let press1 = Object.assign({}, dayToPush.press1);
+      let press2 = Object.assign({}, dayToPush.press2);
+      
+        if (number === press1.endDay && number === press2.endDay) {
+        press.name = 'Prensa 1 y 2'
+        press.press1 = {}
+        press.press2 = {}
+        press.press1.utility = press1.currentWorkType.utility
+        press.press2.utility = press2.currentWorkType.utility
+        } else if (number === press1.endDay) {
+        press.name = 'Prensa 1'
+        press.currentWorkType = Object.assign({}, press1.currentWorkType);
+        } else if (number === press2.endDay) {
+        press.name = 'Prensa 2'
+        press.currentWorkType = Object.assign({}, press2.currentWorkType);
+        }
+
+      return press;
     }
   }
 }
