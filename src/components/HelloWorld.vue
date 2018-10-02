@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { required, minValue, maxValue, numeric, integer } from 'vuelidate/lib/validators' //decimal, maxLength
+import { required, minValue, maxValue, numeric, integer } from 'vuelidate/lib/validators'
 
 export default {
   name: 'my-component',
@@ -77,7 +77,7 @@ export default {
         {
           label: 'RND',
           field: 'rndEvent',
-          type: 'decimal',
+          type: 'text',
           sortable: false
         },
         {
@@ -95,43 +95,43 @@ export default {
         {
           label: 'Demora',
           field: 'delay',
-          type: 'number',
+          type: 'text',
           sortable: false
         },
         {
-          label: 'P1 - Estado',
+          label: 'Prensa 1 - Estado',
           field: 'press1State',
           type: 'text',
           sortable: false
         },
         {
-          label: 'P1 - Dia fin',
+          label: 'Prensa 1 - Dia fin',
           field: 'press1EndDay',
-          type: 'number',
+          type: 'text',
           sortable: false
         },
         {
-          label: 'P2 - Estado',
+          label: 'Prensa 2 - Estado',
           field: 'press2State',
           type: 'text',
           sortable: false
         },
         {
-          label: 'P2 - Dia fin',
+          label: 'Prensa 2 - Dia fin',
           field: 'press2EndDay',
-          type: 'number',
+          type: 'text',
           sortable: false
         },
         {
           label: 'Utilidad',
           field: 'profit',
-          type: 'number',
+          type: 'text',
           sortable: false
         },
         {
           label: 'Utilidad Ac.',
           field: 'acProfit',
-          type: 'number',
+          type: 'text',
           sortable: false
         }
       ],
@@ -148,13 +148,13 @@ export default {
         acProfit: 0,
         press1: {
           name: 'Prensa 1',
-          state: 'L',
+          state: 'Libre',
           endDay: '-',
           currentWorkType: null
         },
         press2: {
           name: 'Prensa 2',
-          state: 'L',
+          state: 'Libre',
           endDay: '-',
           currentWorkType: null
         }
@@ -209,18 +209,13 @@ export default {
   },
   methods: {
     simulate () {
-
-// endDay - 1
-// Ocupado - Libre
-// rndEvent dia fin de trabajo poner '-'
-
       this.$v.$touch()
       if (this.$v.$invalid) {
         alert('Uno de los campos no contiene valores correctos')
       } else {
         this.hasBeenSimulated = true;
         this.rows = []
-        this.rows.push({ day: this.day.number, rndEvent: 0, event: '-', rndDelay: 0, delay: 0, press1State: 'L', press1EndDay: '-', press2State: 'L', press2EndDay: '-', profit: 0, acProfit: 0 })
+        this.rows.push({ day: this.day.number, rndEvent: 0, event: '-', rndDelay: 0, delay: 0, press1State: 'Libre', press1EndDay: '-', press2State: 'Libre', press2EndDay: '-', profit: 0, acProfit: 0 })
 
         for (let i = 1; i <= this.simulation.daysToSimulate; i++) {
           let dayToPush = Object.assign({}, this.day)
@@ -228,31 +223,32 @@ export default {
           dayToPush.press1 = previousDay.press1;
           dayToPush.press2 = previousDay.press2;
           dayToPush.number = i;
-          let event = this.getIncomingEvent(dayToPush.rndEvent, previousDay, dayToPush.number);
+          dayToPush.rndEvent = this.getRandom();
+          let event = this.getIncomingEvent(dayToPush, previousDay);
           dayToPush.event = event;
 
           if (event.desc === this.workType1.name || event.desc === this.workType2.name) {
             dayToPush.rndEvent = this.getRandom();
             let delay;
-            if (previousDay.press1.state === 'L' || previousDay.press2.state === 'L') {
+            if (previousDay.press1.state === 'Libre' || previousDay.press2.state === 'Libre') {
               dayToPush.rndDelay = this.getRandom()
               delay = this.getDelay(dayToPush.rndDelay)
               dayToPush.delay = delay;
             }
             
-            if (previousDay.press1.state === 'L') {
-              dayToPush.press1.state = 'O'
-              dayToPush.press1.endDay = i + delay;
+            if (previousDay.press1.state === 'Libre') {
+              dayToPush.press1.state = 'Ocupado'
+              dayToPush.press1.endDay = i + delay - 1;
               dayToPush.press1.currentWorkType = event.workType;
               dayToPush.press2.state = previousDay.press2.state;
               dayToPush.press2.endDay = previousDay.press2.endDay;
-            } else if (previousDay.press2.state === 'L') {
-              dayToPush.press2.state = 'O';
-              dayToPush.press2.endDay = i + delay;
+            } else if (previousDay.press2.state === 'Libre') {
+              dayToPush.press2.state = 'Ocupado';
+              dayToPush.press2.endDay = i + delay - 1;
               dayToPush.press2.currentWorkType = event.workType;
               dayToPush.press1.state = previousDay.press1.state;
               dayToPush.press1.endDay = previousDay.press1.endDay;
-            } else if (previousDay.press1.state === 'O' && previousDay.press2.state === 'O') {
+            } else if (previousDay.press1.state === 'Ocupado' && previousDay.press2.state === 'Ocupado') {
               dayToPush.press1.state = previousDay.press1.state;
               dayToPush.press1.endDay = previousDay.press1.endDay;
               dayToPush.press1.currentWorkType = previousDay.press1.currentWorkType;
@@ -266,15 +262,15 @@ export default {
             dayToPush.profit = 0;
             dayToPush.acProfit = previousDay.acProfit;
           
-          } else if (event.desc === this.workType1.workFinishedDesc || event.desc === this.workType2.workFinishedDesc || event.desc === 'Fin trabajo tipo 1 y 2') {
+          } else if (event.desc === this.workType1.workFinishedDesc || event.desc === this.workType2.workFinishedDesc || event.desc === 'Fin trabajo de ambas prensas') {
+            dayToPush.rndEvent = '-';
             dayToPush.rndDelay = '-';
             dayToPush.delay = '-';
             let press = this.getPressWithWorkFinished(dayToPush);
             switch (press.name) {
               case this.day.press1.name: 
-                dayToPush.press1.state = 'L';
+                dayToPush.press1.state = 'Libre';
                 dayToPush.press1.endDay = '-';
-                // dayToPush.press1.currentWorkType = null;
                 dayToPush.press2.state = previousDay.press2.state;
                 dayToPush.press2.endDay = previousDay.press2.endDay;
                 dayToPush.press2.currentWorkType = previousDay.press2.currentWorkType;
@@ -282,9 +278,8 @@ export default {
                 dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
                 break;
               case this.day.press2.name: 
-                dayToPush.press2.state = 'L';
+                dayToPush.press2.state = 'Libre';
                 dayToPush.press2.endDay = '-';
-                // dayToPush.press2.currentWorkType = null;
                 dayToPush.press1.state = previousDay.press1.state;
                 dayToPush.press1.endDay = previousDay.press1.endDay;
                 dayToPush.press1.currentWorkType = previousDay.press1.currentWorkType;
@@ -292,12 +287,10 @@ export default {
                 dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
                 break;
               case 'Prensa 1 y 2': 
-                dayToPush.press1.state = 'L';
+                dayToPush.press1.state = 'Libre';
                 dayToPush.press1.endDay = '-';
-                // dayToPush.press1.currentWorkType = null;
-                dayToPush.press2.state = 'L';
+                dayToPush.press2.state = 'Libre';
                 dayToPush.press2.endDay = '-';
-                // dayToPush.press2.currentWorkType = null;
                 dayToPush.profit = previousDay.press1.currentWorkType.utility + previousDay.press2.currentWorkType.utility;
                 dayToPush.acProfit = dayToPush.profit + previousDay.acProfit;
                 break;
@@ -314,7 +307,7 @@ export default {
             dayToPush.profit = 0;
             dayToPush.acProfit = previousDay.acProfit;
 
-            (previousDay.press1.state === 'L' && previousDay.press2.state === 'L') ? this.simulation.daysWithoutWorkAndEmptyPresses += 1 : null;
+            (previousDay.press1.state === 'Libre' && previousDay.press2.state === 'Libre') ? this.simulation.daysWithoutWorkAndEmptyPresses += 1 : null;
           }
 
         this.rows.push({ 
@@ -333,15 +326,13 @@ export default {
         if (i === this.simulation.daysToSimulate) {
             let rejectedWorkPerc = Math.round((this.simulation.rejectedWork / this.simulation.daysToSimulate) * 100) * 100 / 100;
             let daysWithoutWorkAndEmptyPressesPerc = Math.round((this.simulation.daysWithoutWorkAndEmptyPresses / this.simulation.daysToSimulate) * 100) * 100 / 100;
-            console.log('[Trabajos rechazado: % ' + rejectedWorkPerc + ']')
-            console.log('[Dias sin trabajo y prensas vacías: % '+ daysWithoutWorkAndEmptyPressesPerc + ']')
-            console.log('[Ganancia acumulada: ' + dayToPush.acProfit + ']')
-            console.log('[Ganancia promedio por dia: ' + dayToPush.acProfit / this.simulation.daysToSimulate + ']')
+            console.log('[Trabajo rechazado: ' + rejectedWorkPerc + '% ]')
+            console.log('[Dias sin trabajo y prensas vacías: '+ daysWithoutWorkAndEmptyPressesPerc + '% ]')
+            console.log('[Ganancia acumulada: $' + dayToPush.acProfit + ']')
+            console.log('[Ganancia promedio por dia: $' + Math.round((dayToPush.acProfit / this.simulation.daysToSimulate) * 100) / 100 + ']')
         } 
 
-
         }
-      //  this.$emit('clicked', this.rows[this.rows.length - 1].totalCostAcum)
       }
     },
     getRandom () {
@@ -354,19 +345,21 @@ export default {
       
       return delay;
     },
-    getIncomingEvent (r, previousDay, dayToPushNumber) {
-
+    getIncomingEvent (dayToPush, previousDay) {
+      let dayToPushNumber = dayToPush.number;
+      let r = dayToPush.rndEvent;
       let event = {};
       event.desc = '-';
       event.workType = null;
 
       if (dayToPushNumber === previousDay.press2.endDay && dayToPushNumber === previousDay.press1.endDay) {
-        event.desc = 'Fin trabajo tipo 1 y 2'
+        event.desc = 'Fin trabajo de ambas prensas'
       } else if (dayToPushNumber === previousDay.press2.endDay) {
         event.desc = previousDay.press2.currentWorkType.workFinishedDesc
       } else if (dayToPushNumber === previousDay.press1.endDay) {
         event.desc = previousDay.press1.currentWorkType.workFinishedDesc
       } else if (this.simulation.enableType2Work) {
+        if (r === '-') r = this.getRandom();
         if (r < 0.5) { 
           event.workType = this.workType1
           event.desc = this.workType1.name
