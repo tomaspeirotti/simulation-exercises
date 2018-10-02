@@ -209,6 +209,11 @@ export default {
   },
   methods: {
     simulate () {
+
+// endDay - 1
+// Ocupado - Libre
+// rndEvent dia fin de trabajo poner '-'
+
       this.$v.$touch()
       if (this.$v.$invalid) {
         alert('Uno de los campos no contiene valores correctos')
@@ -223,11 +228,11 @@ export default {
           dayToPush.press1 = previousDay.press1;
           dayToPush.press2 = previousDay.press2;
           dayToPush.number = i;
-          dayToPush.rndEvent = this.getRandom();
           let event = this.getIncomingEvent(dayToPush.rndEvent, previousDay, dayToPush.number);
           dayToPush.event = event;
 
           if (event.desc === this.workType1.name || event.desc === this.workType2.name) {
+            dayToPush.rndEvent = this.getRandom();
             let delay;
             if (previousDay.press1.state === 'L' || previousDay.press2.state === 'L') {
               dayToPush.rndDelay = this.getRandom()
