@@ -2,12 +2,12 @@
   <div id="app">
     <input type="button" class="btn btn-warning fixed-top m-3" value="Restart" onClick="window.location.href=window.location.href">
     <h2>IMPRENTA</h2>
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <HelloWorld msg="Welcome to Your Vue.js Appp"/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue' 
 
 export default {
   name: 'app',
