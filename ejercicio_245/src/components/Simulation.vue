@@ -5,8 +5,8 @@
         <b-row class="mb-2">
           <b-col sm="12" class="text-center"><h4>Configurar</h4></b-col>
         </b-row>
-        <b-row class="mb-2">
-            <b-col class="px-4" sm="3">
+        <b-row class="justify-content-md-center mb-4">
+            <b-col class="px-3" sm="2">
               <label>Arrivos</label>
               <div class="input-group">
                 <div class="input-group-prepend">
@@ -19,8 +19,22 @@
               <div class="text-danger" v-if="!$v.simulation.arrivos.maxValue">Debe ingresar un valor menor o igual a 100000</div>
               <div class="text-danger" v-if="!$v.simulation.arrivos.minValue">Debe ingresar un valor mayor o igual a 1</div>
             </b-col>
-            <b-col class="px-4" sm="3">
-              <label>7hs a 8hs</label>
+            <b-col class="px-3" sm="2">
+              <label>Frec. de atención</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="">Media y varianza</span>
+                </div>
+                <input type="text" class="form-control" v-model.number="atencion.media">
+                <input type="text" class="form-control" v-model.number="atencion.varianza">
+              </div>
+              <div class="text-danger" v-if="!$v.simulation.arrivos.required">Debe ingresar un valor</div>
+              <div class="text-danger" v-if="!$v.simulation.arrivos.integer">Debe ingresar un entero</div>
+              <div class="text-danger" v-if="!$v.simulation.arrivos.maxValue">Debe ingresar un valor menor o igual a 100000</div>
+              <div class="text-danger" v-if="!$v.simulation.arrivos.minValue">Debe ingresar un valor mayor o igual a 1</div>
+            </b-col>
+            <b-col class="px-3" sm="2">
+              <label>Frec. de arrivos, de 7hs a 8hs</label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text" id="">Media y varianza</span>
@@ -37,8 +51,8 @@
               <div class="text-danger" v-if="!$v.intervaloUno.varianza.maxValue">Debe ingresar una varianza menor o igual a 100000</div>
               <div class="text-danger" v-if="!$v.intervaloUno.varianza.minValue">Debe ingresar una varianza mayor o igual a 1</div>
             </b-col>
-            <b-col class="px-4" sm="3">
-              <label>8hs a 9hs</label>
+            <b-col class="px-3" sm="2">
+              <label>Frec. de arrivos, de 8hs a 9hs</label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text" id="">Media y varianza</span>
@@ -55,8 +69,8 @@
               <div class="text-danger" v-if="!$v.intervaloDos.varianza.maxValue">Debe ingresar una varianza menor o igual a 100000</div>
               <div class="text-danger" v-if="!$v.intervaloDos.varianza.minValue">Debe ingresar una varianza mayor o igual a 1</div>
             </b-col>
-            <b-col class="px-4" sm="3">
-              <label>Después de 9hs</label>
+            <b-col class="px-3" sm="2">
+              <label>Frec. de arrivos, después de 9hs</label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text" id="">Media y varianza</span>
@@ -74,13 +88,21 @@
               <div class="text-danger" v-if="!$v.intervaloTres.varianza.minValue">Debe ingresar una varianza mayor o igual a 1</div>
             </b-col>
         </b-row>
-        <b-row class="mb-2">
-          <b-col class="px-4" sm="3">
+        <b-row class="justify-content-md-center mb-2">
+          <b-col class="px-1" sm="3">
           <div class="input-group">
             <div class="input-group-prepend">
               <span class="input-group-text">Longitud máxima de cola observada</span>
             </div>
             <input type="text" class="form-control" readonly v-model.number="simulation.longitudMaxima">
+          </div>
+          </b-col>
+          <b-col class="px-1" sm="3">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Hora de comienzo (HH)</span>
+            </div>
+            <input type="text" class="form-control" v-model.number="simulation.horaDeComienzo">
           </div>
           </b-col>
         </b-row>
@@ -96,16 +118,21 @@
 </template>
 
 <script>
-import { required, minValue, maxValue, numeric, integer, sameAs } from 'vuelidate/lib/validators'
+import { required, minValue, maxValue, numeric, integer } from 'vuelidate/lib/validators'
 
 export default {
-  name: 'my-component',
+  name: 'simulation',
   data () {
     return {
       hasBeenSimulated: false,
       simulation: {
         arrivos: 4500,
-        longitudMaxima: 0
+        longitudMaxima: 0,
+        horaDeComienzo: 7
+      },
+      atencion: {
+        media: 10,
+        varianza: 4
       },
       intervaloUno: {
         numero: 1,
@@ -122,96 +149,95 @@ export default {
         media: 7,
         varianza: 1
       },
+      cliente: {
+          label: 'Cliente',
+          field: 'cliente',
+          type: 'text',
+          sortable: false 
+      },
       columns: [
         {
-          label: 'Día',
-          field: 'day',
-          type: 'number'
+          label: 'Tiempo',
+          field: 'tiempo',
+          type: 'text',
+          sortable: false
         },
         {
-          label: 'RND',
-          field: 'rndEvent',
+          label: 'Frec. de arrivos',
+          field: 'frecArrivos',
           type: 'text',
           sortable: false
         },
         {
           label: 'Evento',
-          field: 'event',
+          field: 'evento',
           type: 'text',
           sortable: false
         },
         {
           label: 'RND',
-          field: 'rndDelay',
+          field: 'rnd',
           type: 'text',
           sortable: false
         },
         {
-          label: 'Demora',
-          field: 'delay',
+          label: 'Prox. arrivo',
+          field: 'proxArrivo',
+          type: 'number',
+          sortable: false
+        },
+        {
+          label: 'Emp 1 - Estado',
+          field: 'emp1Estado',
           type: 'text',
           sortable: false
         },
         {
-          label: 'Prensa 1 - Estado',
-          field: 'press1State',
+          label: 'Emp 1 - Tiempo fin At.',
+          field: 'emp1FinAt',
           type: 'text',
           sortable: false
         },
         {
-          label: 'Prensa 1 - Dia fin',
-          field: 'press1EndDay',
+          label: 'Emp 1 - Cola',
+          field: 'emp1Cola',
+          type: 'number',
+          sortable: false
+        },
+        {
+          label: 'Emp 2 - Estado',
+          field: 'emp2Estado',
           type: 'text',
           sortable: false
         },
         {
-          label: 'Prensa 2 - Estado',
-          field: 'press2State',
+          label: 'Emp 2 - Tiempo fin At.',
+          field: 'emp2FinAt',
           type: 'text',
           sortable: false
         },
         {
-          label: 'Prensa 2 - Dia fin',
-          field: 'press2EndDay',
-          type: 'text',
-          sortable: false
-        },
-        {
-          label: 'Utilidad',
-          field: 'profit',
-          type: 'text',
-          sortable: false
-        },
-        {
-          label: 'Utilidad Ac.',
-          field: 'acProfit',
-          type: 'text',
+          label: 'Emp 2 - Cola',
+          field: 'emp2Cola',
+          type: 'number',
           sortable: false
         }
       ],
+      tempRows: [],
+      tempColumns: [],
       rows: [],
-      day: {
-        number: 0,
-        rndEvent: 0,
-        event: {
-          desc: '-'
-        },
-        rndDelay: 0,
-        delay: '-',
-        profit: 0,
-        acProfit: 0,
-        press1: {
-          name: 'Prensa 1',
-          state: 'Libre',
-          endDay: '-',
-          currentWorkType: null
-        },
-        press2: {
-          name: 'Prensa 2',
-          state: 'Libre',
-          endDay: '-',
-          currentWorkType: null
-        }
+      row: {
+        tiempo: "",
+        frecArrivos: "",
+        evento: "",
+        rnd: "",
+        proxArrivo: "",
+        emp1Estado: "",
+        emp1FinAt: "",
+        emp1Cola: 0,
+        emp2Estado: "",
+        emp2FinAt: "",
+        emp2Cola: 0
       }
     };
   },
@@ -272,6 +298,22 @@ export default {
       numeric,
       integer
       }
+    },
+    atencion: {
+      media: {
+      required,
+      maxValue: maxValue(100000),
+      minValue: minValue(1),
+      numeric,
+      integer
+      },
+      varianza: {
+      required,
+      maxValue: maxValue(100000),
+      minValue: minValue(1),
+      numeric,
+      integer
+      }
     }
   },
   methods: {
@@ -281,29 +323,34 @@ export default {
         alert('Uno de los campos no contiene valores correctos')
       } else {
         this.hasBeenSimulated = true;
-        this.rows = []
-        this.rows.push({ day: this.day.number, rndEvent: 0, event: '-', rndDelay: 0, delay: 0, press1State: 'Libre', press1EndDay: '-', press2State: 'Libre', press2EndDay: '-', profit: 0, acProfit: 0 })
-
-        for (let i = 1; i <= this.simulation.peopleToSimulate; i++) {}
-          
-        this.rows.push({ 
-          // day: dayToPush.number, 
-          // rndEvent: dayToPush.rndEvent, 
-          // event: dayToPush.event.desc, 
-          // rndDelay: dayToPush.rndDelay, 
-          // delay: dayToPush.delay, 
-          // press1State: dayToPush.press1.state, press1EndDay: dayToPush.press1.endDay, 
-          // press2State: dayToPush.press2.state, press2EndDay: dayToPush.press2.endDay, 
-          // profit: dayToPush.profit, 
-          // acProfit: dayToPush.acProfit 
-        })
-
+ 
+        var tempColumns = []
+        for (var i = 1; i <= this.simulation.arrivos; i++) {
+          let nuevoCliente = this.getCliente(i)
+          tempColumns.push(nuevoCliente)
+          this.row[nuevoCliente.field] = nuevoCliente
+          this.tempRows.push(this.row)
         }
+        this.columns = this.columns.concat(tempColumns)
+        this.rows = this.rows.concat(this.tempRows)
+      
+        this.hasBeenSimulated = false;
       }
+        console.log("Hola felipe")
+        console.dir(this.rows)
+        console.dir(this.columns)
+        console.dir(tempColumns)
+      },
+    getCliente (i) {
+      let nuevoCliente = Object.assign({}, this.cliente)
+      nuevoCliente.label = "Cliente - "+i.toString()
+      nuevoCliente.field = "cliente"+i.toString()
+      return nuevoCliente
     },
     getRandom () {
       let random = Math.random()
       return Math.round(random * 100) / 100
+    }
     }
 }
 </script>

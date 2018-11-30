@@ -1,12 +1,12 @@
 <template>
   <div id="app">
     <h2>Boletería - Ejercicio 245</h2>
-    <HelloWorld/>
+    <Simulation/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue' 
+import Simulation from './components/Simulation.vue' 
 
 export default {
   name: 'app',
@@ -14,7 +14,7 @@ export default {
     return {}
   },
   components: {
-    HelloWorld
+    Simulation
   },
   properties: {}
 }
