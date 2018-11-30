@@ -1,0 +1,29 @@
+{
+  "arrivos": 4500,
+  "longitudMaxima": 0,
+  "horaComienzo": 7,
+  "atencion": {
+    "media": 0,
+    "varianza": 0
+  },
+  "intervalos": [
+    {
+      "media": 0,
+      "varianza": 0,
+      "horaDesde": 7,
+      "horaHasta": 8
+    },
+    {
+      "media": 0,
+      "varianza": 0,
+      "horaDesde": 8,
+      "horaHasta": 9
+    },
+    {
+      "media": 0,
+      "varianza": 0,
+      "horaDesde": 9,
+      "horaHasta": 7
+    }
+  ]
+}
