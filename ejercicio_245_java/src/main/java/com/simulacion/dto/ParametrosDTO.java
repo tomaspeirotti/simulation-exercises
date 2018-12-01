@@ -96,7 +96,7 @@ simulation: {
           sortable: false
         },
         {
-          label: 'Evento',
+          label: 'TipoEvento',
           field: 'evento',
           type: 'text',
           sortable: false
@@ -114,7 +114,7 @@ simulation: {
           sortable: false
         },
         {
-          label: 'Emp 1 - Estado',
+          label: 'Emp 1 - EstadoEmpleado',
           field: 'emp1Estado',
           type: 'text',
           sortable: false
@@ -132,7 +132,7 @@ simulation: {
           sortable: false
         },
         {
-          label: 'Emp 2 - Estado',
+          label: 'Emp 2 - EstadoEmpleado',
           field: 'emp2Estado',
           type: 'text',
           sortable: false

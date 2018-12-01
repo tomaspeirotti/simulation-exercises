@@ -3,27 +3,27 @@
   "longitudMaxima": 0,
   "horaComienzo": 7,
   "atencion": {
-    "media": 0,
-    "varianza": 0
+    "media": 10,
+    "varianza": 4
   },
   "intervalos": [
     {
-      "media": 0,
-      "varianza": 0,
-      "horaDesde": 7,
-      "horaHasta": 8
+      "media": 6,
+      "varianza": 1,
+      "horaDesde": "07:00:00",
+      "horaHasta": "07:59:59"
     },
     {
-      "media": 0,
-      "varianza": 0,
-      "horaDesde": 8,
-      "horaHasta": 9
+      "media": 5,
+      "varianza": 1,
+      "horaDesde": "08:00:00",
+      "horaHasta": "08:59:59"
     },
     {
-      "media": 0,
-      "varianza": 0,
-      "horaDesde": 9,
-      "horaHasta": 7
+      "media": 7,
+      "varianza": 1,
+      "horaDesde": "09:00:00",
+      "horaHasta": "06:59:59"
     }
   ]
 }
