@@ -24,6 +24,7 @@ public class SimulationBusiness {
     public static final String MAS_MENOS = " +/- ";
     private JSONUtils<ParametrosDTO> parametrosDTOJSONUtils;
     private final ParametrosDTO params = getParametrosFromJson();
+    private int nroCliente = 0;
 
 
     public List<String> getColumnasPredeterminadas() {
@@ -94,12 +95,12 @@ public class SimulationBusiness {
             if (empleadoLibre.getCola()!=0) throw new Exception("Empleado libre con cola > 0");
             empleadoLibre.setEstadoEmpleado(EstadoEmpleado.OCUPADO);
             empleadoLibre.setFinAtencion(proxIteracion.getTiempo().plusSeconds(getFinAtencion(empleadoLibre,proxIteracion.getRandom())));
-            proxIteracion.getClientes().add(new Cliente(EstadoCliente.SIENDO_ATENDIDO, empleadoLibre));
+            proxIteracion.getClientes().add(new Cliente(EstadoCliente.SIENDO_ATENDIDO, empleadoLibre, nroCliente+1));
         } else {
             Empleado empleadoConMenorCola = getEmpleadoOcupadoConMenorCola(empleados);
             if (empleadoConMenorCola.getCola()<0) throw new Exception("Empleado ocupado con cola < 0");
             empleadoConMenorCola.addCola(1);
-            proxIteracion.getClientes().add(new Cliente(EstadoCliente.ESPERANDO_ATENCION, empleadoConMenorCola));
+            proxIteracion.getClientes().add(new Cliente(EstadoCliente.ESPERANDO_ATENCION, empleadoConMenorCola,nroCliente+1));
         }
     }
 

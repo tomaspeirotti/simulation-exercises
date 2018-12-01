@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class CSVBusiness {
@@ -49,10 +50,12 @@ public class CSVBusiness {
         record.add(emp1.getEstadoEmpleado().toString());
         record.add(emp1.getFinAtencion().toString());
         record.add(String.valueOf(emp1.getCola()));
-        iteracion.getClientes().forEach(cliente -> {
-            record.add(cliente.getEstado().toString());
-            record.add(cliente.getSiendoAtendidoPor().getNombre());
-        });
+        iteracion.getClientes().stream()
+                .sorted(Comparator.comparing(Cliente::getNroCliente)) //TODO: Verify sort
+                .forEach(cliente -> {
+                    record.add(cliente.getEstado().toString());
+                    record.add(cliente.getSiendoAtendidoPor().getNombre());
+                });
         return record;
     }
 
