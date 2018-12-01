@@ -24,14 +24,20 @@ public class SimulationBusiness {
     public static final String MAS_MENOS = " +/- ";
     private JSONUtils<ParametrosDTO> parametrosDTOJSONUtils;
     private final ParametrosDTO params = getParametrosFromJson();
-    private List<String> defaultColumns = getColumnasPredeterminadas();
 
-    public void startSimulation() throws Exception {
+
+    public List<String> getColumnasPredeterminadas() {
+        String[] columnasPredeterminadas = {"Tiempo","Frec de arrivos","TipoEvento","RND","Prox arrivo","Emp 1 - EstadoEmpleado","Emp 1 - Tiempo fin At","Emp 1 - Cola","Emp 2 - EstadoEmpleado", "Emp 2 - Tiempo fin At", "Emp 2 - Cola"};
+        return new ArrayList<>(Arrays.asList(columnasPredeterminadas).subList(0, columnasPredeterminadas.length));
+    }
+
+    public List<Iteracion> startSimulation() throws Exception {
         LinkedList<Iteracion> iteraciones = new LinkedList<>();
         iteraciones.add(getPrimeraIteracion());
         for (int i = 0; i < params.getArrivos(); i++) {
             iteraciones.addFirst(getProximaIteracion(iteraciones.getFirst()));
         }
+        return iteraciones;
     }
 
     private Iteracion getProximaIteracion(Iteracion ultimaIteracion) throws Exception {
@@ -147,7 +153,7 @@ public class SimulationBusiness {
         return (long) getDistribucionUniforme(rnd, intervaloDTO.getMedia(), intervaloDTO.getVarianza());
     }
 
-    public double getDistribucionUniforme(double rnd, double media, double varianza) {
+    public double getDistribucionUniforme(double rnd, double media, double varianza) { //TODO: ES DISTRIBUCION NORMAL, NO UNIFORME!
         return (rnd*(varianza-media))+media;
     }
 
@@ -178,28 +184,5 @@ public class SimulationBusiness {
         this.parametrosDTOJSONUtils = parametrosDTOJSONUtils;
     }
 
-    private List<String> getColumnasPredeterminadas() {
-        String[] columnasPredeterminadas = {"Tiempo","Frec de arrivos","TipoEvento","RND","Prox arrivo","Emp 1 - EstadoEmpleado","Emp 1 - Tiempo fin At","Emp 1 - Cola","Emp 2 - EstadoEmpleado", "Emp 2 - Tiempo fin At", "Emp 2 - Cola"};
-        return new ArrayList<>(Arrays.asList(columnasPredeterminadas).subList(0, columnasPredeterminadas.length));
-    }
-
-    public void printCSV() throws IOException {
-        Path folderPath = createTempFolder("Simulacion");
-        Path csvFilePath = Paths.get(folderPath.toString(), "records"+ LocalTime.now().toSecondOfDay() +".csv");
-        csvFilePath = Files.createFile(csvFilePath);
-        try (BufferedWriter bufferedWriter = Files.newBufferedWriter(csvFilePath);
-            CSVPrinter csvPrinter = new CSVPrinter(bufferedWriter, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
-            csvPrinter.printRecord(getColumnasPredeterminadas());
-            for (int i = 0; i <= 10; i++) csvPrinter.printRecord(i);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-    }
-
-    private Path createTempFolder(String folderName) throws IOException {
-        Path tempFolderPath = Paths.get(DESKTOP_DIRECTORY, folderName);
-        tempFolderPath = Files.createDirectories(tempFolderPath);
-        return tempFolderPath;
-    }
 
 }
