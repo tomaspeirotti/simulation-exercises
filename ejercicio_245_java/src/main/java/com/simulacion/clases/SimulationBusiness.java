@@ -4,61 +4,85 @@ import com.simulacion.dto.IntervaloDTO;
 import com.simulacion.dto.ParametrosDTO;
 import com.simulacion.util.FileUtil;
 import com.simulacion.util.JSONUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SimulationBusiness {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulationBusiness.class);
-    private static final String DESKTOP_DIRECTORY = Paths.get("C:\\Users\\Tomas\\Desktop").toString();
     public static final String MAS_MENOS = " +/- ";
     private JSONUtils<ParametrosDTO> parametrosDTOJSONUtils;
     private final ParametrosDTO params = getParametrosFromJson();
+    private int arrivos = 0;
     private int nroCliente = 0;
-
+    private int longMaximaCola = 0;
 
     public List<String> getColumnasPredeterminadas() {
-        String[] columnasPredeterminadas = {"Tiempo","Frec de arrivos","TipoEvento","RND","Prox arrivo","Emp 1 - EstadoEmpleado","Emp 1 - Tiempo fin At","Emp 1 - Cola","Emp 2 - EstadoEmpleado", "Emp 2 - Tiempo fin At", "Emp 2 - Cola"};
+        String[] columnasPredeterminadas = {"Tiempo","Frec de arrivos","Evento","RND1","RND2","Prox arrivo","Emp 0 - Estado","Emp 0 - fin At","Emp 0 - Cola","Emp 1 - Estado", "Emp 1 - fin At", "Emp 1 - Cola"};
         return new ArrayList<>(Arrays.asList(columnasPredeterminadas).subList(0, columnasPredeterminadas.length));
     }
 
     public List<Iteracion> startSimulation() throws Exception {
         LinkedList<Iteracion> iteraciones = new LinkedList<>();
         iteraciones.add(getPrimeraIteracion());
-        for (int i = 0; i < params.getArrivos(); i++) {
-            iteraciones.addFirst(getProximaIteracion(iteraciones.getFirst()));
+        while (arrivos <= params.getArrivos()) {
+            Iteracion iteracion = getProximaIteracion(iteraciones.getFirst());
+            iteraciones.addFirst(iteracion);
         }
-        return iteraciones;
+        LOGGER.info("Longitud de cola maxima: " + longMaximaCola);
+        return iteraciones.stream().sorted(Comparator.comparing(Iteracion::getNroIteracion)).collect(Collectors.toList());
     }
 
     private Iteracion getProximaIteracion(Iteracion ultimaIteracion) throws Exception {
         Iteracion proxIteracion = new Iteracion();
         proxIteracion.setNroIteracion(ultimaIteracion.getNroIteracion()+1);
         proxIteracion.setIntervalos(ultimaIteracion.getIntervalos());
-        proxIteracion.setEmpleados(ultimaIteracion.getEmpleados());
-        proxIteracion.setClientes(ultimaIteracion.getClientes());
+
+        proxIteracion.setEmpleados(getEmpleadosUltimaIteracion(ultimaIteracion));
+        proxIteracion.setClientes(getClientesUltimaIteracion(ultimaIteracion));
 
         Evento proxEvent = getProximoEvento(ultimaIteracion);
         proxIteracion.setEvento(proxEvent);
         proxIteracion.setTiempo(proxEvent.getTiempo());
-        proxIteracion.setRandom(getRandom());
-        if (proxEvent.getTipo().equals(TipoEvento.ARRIVA_CLIENTE)) proxIteracion.setProxArrivo(proxIteracion.getTiempo().plusSeconds(getProxArrivo(getIntervaloActual(proxIteracion),proxIteracion.getRandom())));
+        proxIteracion.setRandom1(getRandom());
+        proxIteracion.setRandom2(getRandom());
+        if (proxEvent.getTipo().equals(TipoEvento.ARRIVA_CLIENTE)) {
+            proxIteracion.setProxArrivo(proxIteracion.getTiempo().plusSeconds(getProxArrivo(getIntervaloActual(proxIteracion),proxIteracion.getRandom1(),proxIteracion.getRandom2())));
+        } else {
+            proxIteracion.setProxArrivo(ultimaIteracion.getProxArrivo());
+        }
         IntervaloDTO intervalo = getIntervaloActual(proxIteracion);
         proxIteracion.setFrecArrivos((long)intervalo.getMedia() + MAS_MENOS + (long)intervalo.getVarianza());
 
         handleEvent(proxIteracion);
-
+//        CSVBusiness csvBusiness = new CSVBusiness();
+//        LOGGER.info(csvBusiness.buildRecord(proxIteracion).toString());
         return proxIteracion;
+    }
+
+    private LinkedList<Cliente> getClientesUltimaIteracion(Iteracion ultimaIteracion) {
+        return new LinkedList<>(ultimaIteracion.getClientes());
+    }
+
+    private List<Empleado> getEmpleadosUltimaIteracion(Iteracion ultimaIteracion) {
+        LinkedList<Empleado> empleadosUltimaIteracion = new LinkedList<>();
+        ultimaIteracion.getEmpleados().forEach(x ->{
+            Empleado empleado = new Empleado();
+            if (x.getClienteSiendoAtendido() != null) empleado.setClienteSiendoAtendido(new Cliente(x.getClienteSiendoAtendido().getEstado(),empleado,x.getClienteSiendoAtendido().getNroCliente(), x.getClienteSiendoAtendido().getTiempoArrivo()));
+            empleado.setFinAtencion(x.getFinAtencion());
+            empleado.setEstadoEmpleado(x.getEstadoEmpleado());
+            empleado.setCola(new LinkedList<>(x.getCola()));
+            empleado.setAtencion(x.getAtencion());
+            empleado.setNombre(x.getNombre());
+            empleado.setAtencion(x.getAtencion());
+            empleado.setNumero(x.getNumero());
+            empleadosUltimaIteracion.add(empleado);
+        });
+        return empleadosUltimaIteracion;
     }
 
     private void handleEvent(Iteracion proxIteracion) throws Exception {
@@ -80,32 +104,54 @@ public class SimulationBusiness {
 
     private void handleFinAtencionEmp(Iteracion proxIteracion, int numero) {
         Empleado empleado = proxIteracion.getEmpleados().stream().filter(emp -> emp.getNumero()==numero).findFirst().get();
-        empleado.removeCola(1);
-        if (empleado.getCola()==0) {
+//        empleado.getClienteSiendoAtendido().setSiendoAtendidoPor(null);
+//        empleado.getClienteSiendoAtendido().setEstado(EstadoCliente.DESTRUIDO);
+        Cliente clienteAtendido = proxIteracion.getClientes().stream().filter(cliente -> cliente.getNroCliente() == empleado.getClienteSiendoAtendido().getNroCliente()).findFirst().get();
+//        Cliente clienteAtendido = empleado.getClienteSiendoAtendido();
+        proxIteracion.getClientes().remove(clienteAtendido);
+        Cliente clienteDestruido = new Cliente();
+        mapCliente(clienteAtendido, clienteDestruido);
+        clienteDestruido.setEstado(EstadoCliente.DESTRUIDO);
+        proxIteracion.getClientes().add(clienteDestruido);
+        if (empleado.getCola().isEmpty()) {
             empleado.setEstadoEmpleado(EstadoEmpleado.LIBRE);
+            empleado.setFinAtencion(null);
+            empleado.setClienteSiendoAtendido(null);
         } else {
             empleado.setEstadoEmpleado(EstadoEmpleado.OCUPADO);
+            empleado.setFinAtencion(proxIteracion.getTiempo().plusSeconds(getFinAtencion(empleado,proxIteracion.getRandom1(),proxIteracion.getRandom2())));
+            empleado.setClienteSiendoAtendido(getPrimerClienteEnLaCola(empleado));
+            empleado.getCola().remove(empleado.getClienteSiendoAtendido());
         }
     }
 
-    private void handleArrivoCliente(Iteracion proxIteracion) throws Exception {
+    private Cliente getPrimerClienteEnLaCola(Empleado empleado) {
+        return empleado.getCola().stream().min(Comparator.comparing(Cliente::getTiempoArrivo)).get();
+    }
+
+    private void handleArrivoCliente(Iteracion proxIteracion) {
+        arrivos += 1;
         List<Empleado> empleados = proxIteracion.getEmpleados();
         Empleado empleadoLibre = getPrimerEmpleadoLibre(empleados);
+        Cliente cliente;
         if (empleadoLibre != null) {
-            if (empleadoLibre.getCola()!=0) throw new Exception("Empleado libre con cola > 0");
             empleadoLibre.setEstadoEmpleado(EstadoEmpleado.OCUPADO);
-            empleadoLibre.setFinAtencion(proxIteracion.getTiempo().plusSeconds(getFinAtencion(empleadoLibre,proxIteracion.getRandom())));
-            proxIteracion.getClientes().add(new Cliente(EstadoCliente.SIENDO_ATENDIDO, empleadoLibre, nroCliente+1));
+            empleadoLibre.setFinAtencion(proxIteracion.getTiempo().plusSeconds(getFinAtencion(empleadoLibre,proxIteracion.getRandom1(), proxIteracion.getRandom2())));
+            cliente = new Cliente(EstadoCliente.SIENDO_ATENDIDO, empleadoLibre, getNroCliente());
+            cliente.setTiempoArrivo(proxIteracion.getTiempo());
+            empleadoLibre.setClienteSiendoAtendido(cliente);
         } else {
             Empleado empleadoConMenorCola = getEmpleadoOcupadoConMenorCola(empleados);
-            if (empleadoConMenorCola.getCola()<0) throw new Exception("Empleado ocupado con cola < 0");
-            empleadoConMenorCola.addCola(1);
-            proxIteracion.getClientes().add(new Cliente(EstadoCliente.ESPERANDO_ATENCION, empleadoConMenorCola,nroCliente+1));
+            cliente = new Cliente(EstadoCliente.ESPERANDO_ATENCION, empleadoConMenorCola, getNroCliente());
+            cliente.setTiempoArrivo(proxIteracion.getTiempo());
+            empleadoConMenorCola.getCola().add(cliente);
+            if (empleadoConMenorCola.getCola().size()>=longMaximaCola) longMaximaCola = empleadoConMenorCola.getCola().size();
         }
+        proxIteracion.getClientes().add(cliente);
     }
 
     private Empleado getEmpleadoOcupadoConMenorCola(List<Empleado> empleados) {
-        return empleados.stream().filter(Empleado::isOcupado).min(Comparator.comparing(Empleado::getCola)).get();
+        return empleados.stream().filter(Empleado::isOcupado).min(Comparator.comparing(Empleado::getColaSize)).get();
     }
 
     private Empleado getPrimerEmpleadoLibre(List<Empleado> empleados) {
@@ -124,18 +170,21 @@ public class SimulationBusiness {
 
     public Iteracion getPrimeraIteracion() {
         Iteracion iteracion = new Iteracion();
+        iteracion.setRandom1(getRandom());
+        iteracion.setRandom2(getRandom());
         iteracion.setClientes(new LinkedList<>());
         iteracion.setIntervalos(params.getIntervalos());
         List<Empleado> empleados = new ArrayList<>();
-        empleados.add(new Empleado(0,"Empleado 0",0,null, EstadoEmpleado.LIBRE, params.getAtencion()));
-        empleados.add(new Empleado(1,"Empleado 1",0,null, EstadoEmpleado.LIBRE, params.getAtencion()));
+        empleados.add(new Empleado(0,"Empleado 0", null, EstadoEmpleado.LIBRE, params.getAtencion()));
+        empleados.add(new Empleado(1,"Empleado 1", null, EstadoEmpleado.LIBRE, params.getAtencion()));
         iteracion.setEmpleados(empleados);
         iteracion.setTiempo(LocalTime.of(params.getHoraComienzo(),0,0));
-        iteracion.setProxArrivo(iteracion.getTiempo().plusSeconds(getProxArrivo(getIntervaloActual(iteracion), iteracion.getRandom())));
+        iteracion.setProxArrivo(iteracion.getTiempo().plusSeconds(getProxArrivo(getIntervaloActual(iteracion), iteracion.getRandom1(), iteracion.getRandom2())));
         iteracion.setNroIteracion(0);
         iteracion.setEvento(new Evento(iteracion.getTiempo(),TipoEvento.INICIALIZACION));
         IntervaloDTO intervaloDTO = getIntervaloActual(iteracion);
         iteracion.setFrecArrivos((long)intervaloDTO.getMedia() + MAS_MENOS + (long)intervaloDTO.getVarianza());
+
         return iteracion;
     }
 
@@ -150,21 +199,24 @@ public class SimulationBusiness {
         return intervaloDTO;
     }
 
-    public long getProxArrivo(IntervaloDTO intervaloDTO, double rnd) {
-        return (long) getDistribucionUniforme(rnd, intervaloDTO.getMedia(), intervaloDTO.getVarianza());
+    public long getProxArrivo(IntervaloDTO intervaloDTO, double rnd1, double rnd2) {
+        return (long) getDistribucionNormal(rnd1, rnd2,intervaloDTO.getMedia(), intervaloDTO.getVarianza());
     }
 
-    public double getDistribucionUniforme(double rnd, double media, double varianza) { //TODO: ES DISTRIBUCION NORMAL, NO UNIFORME!
-        return (rnd*(varianza-media))+media;
+    public double getDistribucionNormal(double rnd1, double rnd2, double media, double varianza) {
+        double x1, x2;
+        x1 = Math.sqrt(-2*Math.log(rnd1))*Math.cos(2*Math.PI*rnd2);
+//        x2 = Math.sqrt(-2*Math.log(r1))*Math.sin(2*Math.PI*r2);
+        return x1*varianza+media;
     }
 
-    public long getFinAtencion(Empleado empleado, double rnd) {
-        return (long) getDistribucionUniforme(rnd, empleado.getAtencion().getMedia(), empleado.getAtencion().getVarianza());
+    public long getFinAtencion(Empleado empleado, double rnd1, double rnd2) {
+        return (long) getDistribucionNormal(rnd1, rnd2, empleado.getAtencion().getMedia(), empleado.getAtencion().getVarianza());
     }
 
     public double getRandom() {
         Random r = new Random();
-        int low = 0;
+        int low = 1;
         int high = 100;
         return (r.nextInt(high-low) + low)*0.01;
     }
@@ -183,6 +235,17 @@ public class SimulationBusiness {
 
     public void setParametrosDTOJSONUtils(JSONUtils<ParametrosDTO> parametrosDTOJSONUtils) {
         this.parametrosDTOJSONUtils = parametrosDTOJSONUtils;
+    }
+
+    public int getNroCliente() {
+       return this.nroCliente += 1;
+    }
+
+    public void mapCliente(Cliente source, Cliente destination) {
+        destination.setSiendoAtendidoPor(source.getSiendoAtendidoPor());
+        destination.setEstado(source.getEstado());
+        destination.setTiempoArrivo(source.getTiempoArrivo());
+        destination.setNroCliente(source.getNroCliente());
     }
 
 

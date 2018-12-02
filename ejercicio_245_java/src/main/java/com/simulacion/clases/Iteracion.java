@@ -11,7 +11,8 @@ public class Iteracion {
     private int nroIteracion;
     private LocalTime tiempo;
     private List<IntervaloDTO> intervalos;
-    private double random;
+    private double random1;
+    private double random2;
     private LocalTime proxArrivo;
     private List<Empleado> empleados;
     private LinkedList<Cliente> clientes;
@@ -66,12 +67,12 @@ public class Iteracion {
         this.intervalos = intervalos;
     }
 
-    public double getRandom() {
-        return random;
+    public double getRandom1() {
+        return random1;
     }
 
-    public void setRandom(double random) {
-        this.random = random;
+    public void setRandom1(double random1) {
+        this.random1 = random1;
     }
 
     public List<Empleado> getEmpleados() {
@@ -88,5 +89,13 @@ public class Iteracion {
 
     public void setClientes(LinkedList<Cliente> clientes) {
         this.clientes = clientes;
+    }
+
+    public double getRandom2() {
+        return random2;
+    }
+
+    public void setRandom2(double random2) {
+        this.random2 = random2;
     }
 }

@@ -1,15 +1,36 @@
 package com.simulacion.clases;
 
+import java.time.LocalTime;
+
 public class Cliente {
 
     private EstadoCliente estado;
     private Empleado siendoAtendidoPor;
     private int nroCliente;
+    private LocalTime tiempoArrivo;
+
+    public Cliente() {
+    }
 
     public Cliente(EstadoCliente estado, Empleado siendoAtendidoPor, int nroCliente) {
         this.estado = estado;
         this.siendoAtendidoPor = siendoAtendidoPor;
         this.nroCliente = nroCliente;
+    }
+
+    public Cliente(EstadoCliente estado, Empleado siendoAtendidoPor, int nroCliente, LocalTime tiempoArrivo) {
+        this.estado = estado;
+        this.siendoAtendidoPor = siendoAtendidoPor;
+        this.nroCliente = nroCliente;
+        this.tiempoArrivo = tiempoArrivo;
+    }
+
+    public LocalTime getTiempoArrivo() {
+        return tiempoArrivo;
+    }
+
+    public void setTiempoArrivo(LocalTime tiempoArrivo) {
+        this.tiempoArrivo = tiempoArrivo;
     }
 
     public int getNroCliente() {

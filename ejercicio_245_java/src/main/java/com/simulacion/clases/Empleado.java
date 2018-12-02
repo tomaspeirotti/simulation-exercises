@@ -3,31 +3,49 @@ package com.simulacion.clases;
 import com.simulacion.dto.ParametroDTO;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Empleado {
 
     private int numero;
     private String nombre;
-    private int cola;
+    private List<Cliente> cola;
     private LocalTime finAtencion;
     private EstadoEmpleado estadoEmpleado;
     private ParametroDTO atencion;
+    public Cliente clienteSiendoAtendido;
 
-    public Empleado(int numero, String nombre, int cola, LocalTime finAtencion, EstadoEmpleado estadoEmpleado, ParametroDTO atencion) {
+    public Empleado() {
+    }
+
+    public Empleado(int numero, String nombre, LocalTime finAtencion, EstadoEmpleado estadoEmpleado, ParametroDTO atencion) {
         this.numero = numero;
         this.nombre = nombre;
-        this.cola = cola;
         this.finAtencion = finAtencion;
         this.estadoEmpleado = estadoEmpleado;
         this.atencion = atencion;
+        this.cola = new ArrayList<>();
     }
 
-    public void addCola(int cantidad) {
-        this.cola += cantidad;
+    public int getColaSize() {
+        return this.cola.size();
     }
 
-    public void removeCola(int cantidad) {
-        this.cola -= cantidad;
+    public List<Cliente> getCola() {
+        return cola;
+    }
+
+    public void setCola(List<Cliente> cola) {
+        this.cola = cola;
+    }
+
+    public Cliente getClienteSiendoAtendido() {
+        return clienteSiendoAtendido;
+    }
+
+    public void setClienteSiendoAtendido(Cliente clienteSiendoAtendido) {
+        this.clienteSiendoAtendido = clienteSiendoAtendido;
     }
 
     public ParametroDTO getAtencion() {
@@ -60,14 +78,6 @@ public class Empleado {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public int getCola() {
-        return cola;
-    }
-
-    public void setCola(int cola) {
-        this.cola = cola;
     }
 
     public LocalTime getFinAtencion() {
