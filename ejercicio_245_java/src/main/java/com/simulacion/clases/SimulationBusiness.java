@@ -2,6 +2,7 @@ package com.simulacion.clases;
 
 import com.simulacion.dto.IntervaloDTO;
 import com.simulacion.dto.ParametrosDTO;
+import com.simulacion.util.DeepCopy;
 import com.simulacion.util.FileUtil;
 import com.simulacion.util.JSONUtils;
 import org.slf4j.Logger;
@@ -51,11 +52,8 @@ public class SimulationBusiness {
         proxIteracion.setTiempo(proxEvent.getTiempo());
         proxIteracion.setRandom1(getRandom());
         proxIteracion.setRandom2(getRandom());
-        if (proxEvent.getTipo().equals(TipoEvento.ARRIVA_CLIENTE)) {
-            proxIteracion.setProxArrivo(proxIteracion.getTiempo().plusSeconds(getProxArrivo(getIntervaloActual(proxIteracion),proxIteracion.getRandom1(),proxIteracion.getRandom2())));
-        } else {
-            proxIteracion.setProxArrivo(ultimaIteracion.getProxArrivo());
-        }
+        proxIteracion.setProxArrivo(ultimaIteracion.getProxArrivo());
+
         IntervaloDTO intervalo = getIntervaloActual(proxIteracion);
         proxIteracion.setFrecArrivos((long)intervalo.getMedia() + MAS_MENOS + (long)intervalo.getVarianza());
         proxIteracion.setLongMaximaCola(longMaximaCola);
@@ -65,7 +63,9 @@ public class SimulationBusiness {
     }
 
     private LinkedList<Cliente> getClientesUltimaIteracion(Iteracion ultimaIteracion) {
-        return new LinkedList<>(ultimaIteracion.getClientes());
+        LinkedList<Cliente> clientesNuevaIteracion = new LinkedList<>();
+        ultimaIteracion.getClientes().forEach(cliente -> clientesNuevaIteracion.add(new Cliente(cliente)));
+        return clientesNuevaIteracion;
     }
 
     private List<Empleado> getEmpleadosUltimaIteracion(Iteracion ultimaIteracion) {
@@ -76,7 +76,11 @@ public class SimulationBusiness {
             nuevoEmpleado.setFinAtencion(empleadoUltimaIt.getFinAtencion());
             nuevoEmpleado.setEstadoEmpleado(empleadoUltimaIt.getEstadoEmpleado());
             LinkedList<Cliente> nuevaCola = new LinkedList<>();
-            empleadoUltimaIt.getCola().forEach(c -> nuevaCola.add(new Cliente(c)));
+            empleadoUltimaIt.getCola().forEach(c -> {
+                Cliente clienteNuevo = new Cliente(c);
+                clienteNuevo.setSiendoAtendidoPor(nuevoEmpleado);
+                nuevaCola.add(new Cliente(c));
+            });
             nuevoEmpleado.setCola(nuevaCola);
             nuevoEmpleado.setAtencion(empleadoUltimaIt.getAtencion());
             nuevoEmpleado.setNombre(empleadoUltimaIt.getNombre());
@@ -108,9 +112,9 @@ public class SimulationBusiness {
         empleado.getCola().remove(empleado.getClienteSiendoAtendido());
         Cliente clienteAtendido = proxIteracion.getClientes().stream().filter(cliente -> cliente.getNroCliente() == empleado.getClienteSiendoAtendido().getNroCliente()).findFirst().get();
         proxIteracion.getClientes().remove(clienteAtendido);
-        Cliente clienteDestruido = new Cliente();
-        mapCliente(clienteAtendido, clienteDestruido);
+        Cliente clienteDestruido = new Cliente(clienteAtendido);
         clienteDestruido.setEstado(EstadoCliente.DE);
+        clienteDestruido.setSiendoAtendidoPor(null);
         proxIteracion.getClientes().add(clienteDestruido);
         if (empleado.getCola().isEmpty()) {
             empleado.setEstadoEmpleado(EstadoEmpleado.LIBRE);
@@ -134,6 +138,7 @@ public class SimulationBusiness {
 
     private void handleArrivoCliente(Iteracion proxIteracion) {
         arrivos += 1;
+        proxIteracion.setProxArrivo(proxIteracion.getTiempo().plusSeconds(getProxArrivo(getIntervaloActual(proxIteracion),proxIteracion.getRandom1(),proxIteracion.getRandom2())));
         List<Empleado> empleados = proxIteracion.getEmpleados();
         Empleado empleadoLibre = getPrimerEmpleadoLibre(empleados);
         Cliente cliente;
@@ -269,12 +274,5 @@ public class SimulationBusiness {
     public int generarNroCliente() {
        return this.nroCliente += 1;
     }
-
-    public void mapCliente(Cliente source, Cliente destination) {
-        destination.setEstado(source.getEstado());
-        destination.setTiempoArrivo(source.getTiempoArrivo());
-        destination.setNroCliente(source.getNroCliente());
-    }
-
 
 }
