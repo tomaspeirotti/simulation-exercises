@@ -20,6 +20,7 @@ public class SimulationBusiness {
     private int arrivos = 0;
     private int nroCliente = 0;
     private int longMaximaCola = 0;
+    private boolean x2used = false;
 
     public List<String> getColumnasPredeterminadas() {
         String[] columnasPredeterminadas = {"Tiempo","Frec de arrivos","Evento","RND1","RND2","Prox arrivo","Emp 0 - Estado","Emp 0 - fin At","Emp 0 - Cola","Emp 1 - Estado", "Emp 1 - fin At", "Emp 1 - Cola"};
@@ -200,18 +201,35 @@ public class SimulationBusiness {
     }
 
     public long getProxArrivo(IntervaloDTO intervaloDTO, double rnd1, double rnd2) {
-        return (long) getDistribucionNormal(rnd1, rnd2,intervaloDTO.getMedia(), intervaloDTO.getVarianza());
+        long returnValue = (long) getDistribucionNormal(rnd1, rnd2,intervaloDTO.getMedia(), intervaloDTO.getVarianza());
+        long limInf = (long) (intervaloDTO.getMedia()-intervaloDTO.getVarianza());
+        long limSup = (long) (intervaloDTO.getMedia()+intervaloDTO.getVarianza());
+        if (returnValue < limInf) returnValue = limInf;
+        if (returnValue > limSup) returnValue = limSup;
+        return returnValue;
     }
 
     public double getDistribucionNormal(double rnd1, double rnd2, double media, double varianza) {
-        double x1, x2;
-        x1 = Math.sqrt(-2*Math.log(rnd1))*Math.cos(2*Math.PI*rnd2);
-//        x2 = Math.sqrt(-2*Math.log(r1))*Math.sin(2*Math.PI*r2);
-        return x1*varianza+media;
+        double x1, x2, value;
+        if (x2used) {
+            x1 = Math.sqrt(-2*Math.log(rnd1))*Math.cos(2*Math.PI*rnd2);
+            value = x1;
+            x2used = false;
+        } else {
+            x2 = Math.sqrt(-2*Math.log(rnd1))*Math.sin(2*Math.PI*rnd2);
+            value = x2;
+            x2used = true;
+        }
+        return value*varianza+media;
     }
 
     public long getFinAtencion(Empleado empleado, double rnd1, double rnd2) {
-        return (long) getDistribucionNormal(rnd1, rnd2, empleado.getAtencion().getMedia(), empleado.getAtencion().getVarianza());
+        long returnValue =  (long) getDistribucionNormal(rnd1, rnd2, empleado.getAtencion().getMedia(), empleado.getAtencion().getVarianza());
+        long limSup = (long) (empleado.getAtencion().getMedia()+empleado.getAtencion().getVarianza());
+        long limInf = (long) (empleado.getAtencion().getMedia()-empleado.getAtencion().getVarianza());
+        if (returnValue < limInf) returnValue = limInf;
+        if (returnValue > limSup) returnValue = limSup;
+        return returnValue;
     }
 
     public double getRandom() {
