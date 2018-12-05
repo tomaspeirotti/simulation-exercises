@@ -9,6 +9,15 @@ public class ParametrosDTO {
     private int horaComienzo;
     private List<IntervaloDTO> intervalos;
     private ParametroDTO atencion;
+    private boolean acc;
+
+    public boolean isAcc() {
+        return acc;
+    }
+
+    public void setAcc(boolean acc) {
+        this.acc = acc;
+    }
 
     public int getArrivos() {
         return arrivos;

@@ -12,6 +12,13 @@ public class Cliente {
     public Cliente() {
     }
 
+    public Cliente(Cliente cliente) {
+        this.estado = cliente.getEstado();
+        this.siendoAtendidoPor = cliente.getSiendoAtendidoPor();
+        this.nroCliente = cliente.getNroCliente();
+        this.tiempoArrivo = cliente.getTiempoArrivo();
+    }
+
     public Cliente(EstadoCliente estado, Empleado siendoAtendidoPor, int nroCliente) {
         this.estado = estado;
         this.siendoAtendidoPor = siendoAtendidoPor;

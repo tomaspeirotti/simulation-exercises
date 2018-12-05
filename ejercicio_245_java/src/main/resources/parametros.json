@@ -1,5 +1,5 @@
 {
-  "arrivos": 2500,
+  "arrivos": 100,
   "horaComienzo": 7,
   "atencion": {
     "media": 10,
@@ -24,5 +24,6 @@
       "horaDesde": "09:00:00",
       "horaHasta": "06:59:59"
     }
-  ]
+  ],
+  "acc":false
 }

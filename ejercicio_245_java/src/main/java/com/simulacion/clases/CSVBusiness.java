@@ -14,35 +14,37 @@ import java.text.DecimalFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CSVBusiness {
 
     private static final String DESKTOP_DIRECTORY = Paths.get("C:\\Users\\Tomas\\Desktop").toString();
     private static final Logger LOGGER = LoggerFactory.getLogger(CSVBusiness.class);
 
-    public void printCSV(List<Iteracion> iteraciones, List<String> columnas) throws IOException {
+    public void printCSV(List<Iteracion> iteraciones, List<String> columnas, boolean agregarColumnasClientes) throws IOException {
         Path folderPath = createTempFolder("Simulacion");
         Path csvFilePath = Paths.get(folderPath.toString(), "records"+ LocalTime.now().toSecondOfDay() +".csv");
         csvFilePath = Files.createFile(csvFilePath);
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(csvFilePath);
              CSVPrinter csvPrinter = new CSVPrinter(bufferedWriter, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
-
-            for (Cliente cliente: iteraciones.get(iteraciones.size()-1).getClientes()) {
-                columnas.add("Cliente: " + cliente.getNroCliente() + " - Estado");
-                columnas.add("Cliente: " + cliente.getNroCliente() + " - Nro Emp");
+            if (agregarColumnasClientes) {
+                for (Cliente cliente: iteraciones.get(iteraciones.size()-1).getClientes().stream().sorted(Comparator.comparing(Cliente::getNroCliente)).collect(Collectors.toList())) {
+                    columnas.add("C" + cliente.getNroCliente() + ":Estado");
+                    columnas.add("C" + cliente.getNroCliente() + ":Emp");
+                }
             }
             csvPrinter.printRecord(columnas);
 
-            for (Iteracion iteracion: iteraciones) csvPrinter.printRecord(buildRecord(iteracion));
+            for (Iteracion iteracion: iteraciones) csvPrinter.printRecord(buildRecord(iteracion, agregarColumnasClientes));
 
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
+            throw e;
         }
     }
 
-    public List<String> buildRecord(Iteracion iteracion) {
+    public List<String> buildRecord(Iteracion iteracion, boolean agregarClientes) {
         List<String> record = new ArrayList<>();
         Empleado emp0 = iteracion.getEmpleados().stream().filter(emp -> emp.getNumero()==0).findFirst().get();
         Empleado emp1 = iteracion.getEmpleados().stream().filter(emp -> emp.getNumero()==1).findFirst().get();
@@ -59,12 +61,14 @@ public class CSVBusiness {
         record.add(emp1.getFinAtencion()==null?"":emp1.getFinAtencion().toString());
         record.add(String.valueOf(emp1.getCola().size()));
         record.add(String.valueOf(iteracion.getLongMaximaCola()));
-        iteracion.getClientes().stream()
-                .sorted(Comparator.comparing(Cliente::getNroCliente))
-                .forEach(cliente -> {
-                    record.add(cliente.getEstado().toString());
-                    record.add(String.valueOf(cliente.getSiendoAtendidoPor().getNumero()));
-                });
+        if (agregarClientes) {
+            iteracion.getClientes().stream()
+                    .sorted(Comparator.comparing(Cliente::getNroCliente))
+                    .forEach(cliente -> {
+                        record.add(cliente.getEstado()!=null?cliente.getEstado().toString():"");
+                        record.add(String.valueOf(cliente.getSiendoAtendidoPor()==null?"":cliente.getSiendoAtendidoPor().getNumero()));
+                    });
+        }
         return record;
     }
 

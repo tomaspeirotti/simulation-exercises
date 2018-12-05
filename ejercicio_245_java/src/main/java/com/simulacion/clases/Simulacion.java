@@ -3,8 +3,6 @@ package com.simulacion.clases;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Simulacion {
@@ -16,7 +14,7 @@ public class Simulacion {
         LOGGER.info("Simulation started");
         List<Iteracion> iteraciones = simulationBusiness.startSimulation();
         LOGGER.info("Simulation finished, creating CSV...");
-        csvBusiness.printCSV(iteraciones, simulationBusiness.getColumnasPredeterminadas());
+        csvBusiness.printCSV(iteraciones, simulationBusiness.getColumnasPredeterminadas(), simulationBusiness.getParametrosFromJson().isAcc());
         LOGGER.info("CSV Created");
     }
 }
