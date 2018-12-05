@@ -18,6 +18,15 @@ public class Iteracion {
     private LinkedList<Cliente> clientes;
     private Evento evento;
     private String frecArrivos;
+    private int longMaximaCola;
+
+    public int getLongMaximaCola() {
+        return longMaximaCola;
+    }
+
+    public void setLongMaximaCola(int longMaximaCola) {
+        this.longMaximaCola = longMaximaCola;
+    }
 
     public String getFrecArrivos() {
         return frecArrivos;

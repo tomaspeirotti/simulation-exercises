@@ -58,6 +58,7 @@ public class CSVBusiness {
         record.add(emp1.getEstadoEmpleado().toString());
         record.add(emp1.getFinAtencion()==null?"":emp1.getFinAtencion().toString());
         record.add(String.valueOf(emp1.getCola().size()));
+        record.add(String.valueOf(iteracion.getLongMaximaCola()));
         iteracion.getClientes().stream()
                 .sorted(Comparator.comparing(Cliente::getNroCliente))
                 .forEach(cliente -> {

@@ -23,7 +23,7 @@ public class SimulationBusiness {
     private boolean x2used = false;
 
     public List<String> getColumnasPredeterminadas() {
-        String[] columnasPredeterminadas = {"Tiempo","Frec de arrivos","Evento","RND1","RND2","Prox arrivo","Emp 0 - Estado","Emp 0 - fin At","Emp 0 - Cola","Emp 1 - Estado", "Emp 1 - fin At", "Emp 1 - Cola"};
+        String[] columnasPredeterminadas = {"Tiempo","Frec de arrivos","Evento","RND1","RND2","Prox arrivo","Emp 0 - Estado","Emp 0 - fin At","Emp 0 - Cola","Emp 1 - Estado", "Emp 1 - fin At", "Emp 1 - Cola","Long. Max. Cola"};
         return new ArrayList<>(Arrays.asList(columnasPredeterminadas).subList(0, columnasPredeterminadas.length));
     }
 
@@ -58,10 +58,9 @@ public class SimulationBusiness {
         }
         IntervaloDTO intervalo = getIntervaloActual(proxIteracion);
         proxIteracion.setFrecArrivos((long)intervalo.getMedia() + MAS_MENOS + (long)intervalo.getVarianza());
-
+        proxIteracion.setLongMaximaCola(longMaximaCola);
         handleEvent(proxIteracion);
-//        CSVBusiness csvBusiness = new CSVBusiness();
-//        LOGGER.info(csvBusiness.buildRecord(proxIteracion).toString());
+
         return proxIteracion;
     }
 
@@ -86,7 +85,7 @@ public class SimulationBusiness {
         return empleadosUltimaIteracion;
     }
 
-    private void handleEvent(Iteracion proxIteracion) throws Exception {
+    private void handleEvent(Iteracion proxIteracion) {
         switch (proxIteracion.getEvento().getTipo()) {
             case ARRIVA_CLIENTE:
                 handleArrivoCliente(proxIteracion);
@@ -105,10 +104,7 @@ public class SimulationBusiness {
 
     private void handleFinAtencionEmp(Iteracion proxIteracion, int numero) {
         Empleado empleado = proxIteracion.getEmpleados().stream().filter(emp -> emp.getNumero()==numero).findFirst().get();
-//        empleado.getClienteSiendoAtendido().setSiendoAtendidoPor(null);
-//        empleado.getClienteSiendoAtendido().setEstado(EstadoCliente.DESTRUIDO);
         Cliente clienteAtendido = proxIteracion.getClientes().stream().filter(cliente -> cliente.getNroCliente() == empleado.getClienteSiendoAtendido().getNroCliente()).findFirst().get();
-//        Cliente clienteAtendido = empleado.getClienteSiendoAtendido();
         proxIteracion.getClientes().remove(clienteAtendido);
         Cliente clienteDestruido = new Cliente();
         mapCliente(clienteAtendido, clienteDestruido);
@@ -146,13 +142,21 @@ public class SimulationBusiness {
             cliente = new Cliente(EstadoCliente.ESPERANDO_ATENCION, empleadoConMenorCola, getNroCliente());
             cliente.setTiempoArrivo(proxIteracion.getTiempo());
             empleadoConMenorCola.getCola().add(cliente);
-            if (empleadoConMenorCola.getCola().size()>=longMaximaCola) longMaximaCola = empleadoConMenorCola.getCola().size();
+
+            Empleado empleadoConMayorCola = getEmpleadoConMayorCola(empleados);
+            int longActualCola = empleadoConMayorCola.getCola().size();
+            if (longActualCola>longMaximaCola) longMaximaCola = longActualCola;
+
         }
         proxIteracion.getClientes().add(cliente);
     }
 
     private Empleado getEmpleadoOcupadoConMenorCola(List<Empleado> empleados) {
         return empleados.stream().filter(Empleado::isOcupado).min(Comparator.comparing(Empleado::getColaSize)).get();
+    }
+
+    private Empleado getEmpleadoConMayorCola(List<Empleado> empleados) {
+        return empleados.stream().max(Comparator.comparing(Empleado::getColaSize)).get();
     }
 
     private Empleado getPrimerEmpleadoLibre(List<Empleado> empleados) {
@@ -185,6 +189,7 @@ public class SimulationBusiness {
         iteracion.setEvento(new Evento(iteracion.getTiempo(),TipoEvento.INICIALIZACION));
         IntervaloDTO intervaloDTO = getIntervaloActual(iteracion);
         iteracion.setFrecArrivos((long)intervaloDTO.getMedia() + MAS_MENOS + (long)intervaloDTO.getVarianza());
+        iteracion.setLongMaximaCola(longMaximaCola);
 
         return iteracion;
     }
