@@ -3,14 +3,14 @@ package com.simulacion.clases;
 import com.simulacion.dto.ParametroDTO;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Empleado {
 
     private int numero;
     private String nombre;
-    private List<Cliente> cola;
     private LocalTime finAtencion;
     private EstadoEmpleado estadoEmpleado;
     private ParametroDTO atencion;
@@ -25,19 +25,6 @@ public class Empleado {
         this.finAtencion = finAtencion;
         this.estadoEmpleado = estadoEmpleado;
         this.atencion = atencion;
-        this.cola = new ArrayList<>();
-    }
-
-    public int getColaSize() {
-        return this.cola.size();
-    }
-
-    public List<Cliente> getCola() {
-        return cola;
-    }
-
-    public void setCola(List<Cliente> cola) {
-        this.cola = cola;
     }
 
     public Cliente getClienteSiendoAtendido() {
@@ -94,5 +81,16 @@ public class Empleado {
 
     public void setEstadoEmpleado(EstadoEmpleado estadoEmpleado) {
         this.estadoEmpleado = estadoEmpleado;
+    }
+
+    public List<Cliente> getCola(List<Cliente> clientes) {
+        return clientes.stream()
+                .filter(cli -> cli.getEstado()!=null && cli.getSiendoAtendidoPor().getNumero()==this.getNumero() && cli.getEstado().equals(EstadoCliente.EA))
+                .sorted(Comparator.comparing(Cliente::getTiempoArrivo))
+                .collect(Collectors.toList());
+    }
+
+    public int getColaSize(List<Cliente> clientes) {
+        return this.getCola(clientes).size();
     }
 }

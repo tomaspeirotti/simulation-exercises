@@ -76,13 +76,6 @@ public class SimulationBusiness {
             if (empleadoUltimaIt.getClienteSiendoAtendido() != null) nuevoEmpleado.setClienteSiendoAtendido(new Cliente(empleadoUltimaIt.getClienteSiendoAtendido()));
             nuevoEmpleado.setFinAtencion(empleadoUltimaIt.getFinAtencion());
             nuevoEmpleado.setEstadoEmpleado(empleadoUltimaIt.getEstadoEmpleado());
-            LinkedList<Cliente> nuevaCola = new LinkedList<>();
-            empleadoUltimaIt.getCola().forEach(c -> {
-                Cliente clienteNuevo = new Cliente(c);
-                clienteNuevo.setSiendoAtendidoPor(nuevoEmpleado);
-                nuevaCola.add(new Cliente(c));
-            });
-            nuevoEmpleado.setCola(nuevaCola);
             nuevoEmpleado.setAtencion(empleadoUltimaIt.getAtencion());
             nuevoEmpleado.setNombre(empleadoUltimaIt.getNombre());
             nuevoEmpleado.setNumero(empleadoUltimaIt.getNumero());
@@ -111,7 +104,7 @@ public class SimulationBusiness {
     private void handleFinAtencionEmp(Iteracion proxIteracion, int numero) {
         Empleado empleado = proxIteracion.getEmpleados().stream().filter(emp -> emp.getNumero()==numero).findFirst().get();
 
-        empleado.getCola().remove(empleado.getClienteSiendoAtendido());
+        empleado.getCola(proxIteracion.getClientes()).remove(empleado.getClienteSiendoAtendido());
         Cliente clienteAtendido = proxIteracion.getClientes().stream().filter(cliente -> cliente.getNroCliente() == empleado.getClienteSiendoAtendido().getNroCliente()).findFirst().get();
         proxIteracion.getClientes().remove(clienteAtendido);
         Cliente clienteDestruido = new Cliente(clienteAtendido);
@@ -119,26 +112,24 @@ public class SimulationBusiness {
         clienteDestruido.setSiendoAtendidoPor(null);
         proxIteracion.getClientes().add(clienteDestruido);
 
-        if (empleado.getCola().isEmpty()) {
+        if (empleado.getCola(proxIteracion.getClientes()).isEmpty()) {
             empleado.setEstadoEmpleado(EstadoEmpleado.LIBRE);
             empleado.setFinAtencion(null);
             empleado.setClienteSiendoAtendido(null);
         } else {
             empleado.setEstadoEmpleado(EstadoEmpleado.OCUPADO);
             empleado.setFinAtencion(proxIteracion.getTiempo().plusSeconds(getFinAtencion(empleado,proxIteracion.getRandom1(),proxIteracion.getRandom2())));
-            Cliente primerClienteEsperandoAtencion = getPrimerClienteEnLaCola(empleado);
+            Cliente primerClienteEsperandoAtencion = getPrimerClienteEnLaCola(empleado, proxIteracion.getClientes());
             primerClienteEsperandoAtencion.setEstado(EstadoCliente.SA);
             empleado.setClienteSiendoAtendido(new Cliente(primerClienteEsperandoAtencion));
-            empleado.getCola().remove(primerClienteEsperandoAtencion);
+            empleado.getCola(proxIteracion.getClientes()).remove(primerClienteEsperandoAtencion);
         }
 
 
     }
 
-    private Cliente getPrimerClienteEnLaCola(Empleado empleado) {
-        return empleado.getCola().stream()
-                .filter(cli -> cli.getEstado()!=null&&cli.getEstado().equals(EstadoCliente.EA))
-                .min(Comparator.comparing(Cliente::getTiempoArrivo)).get();
+    private Cliente getPrimerClienteEnLaCola(Empleado empleado, List<Cliente> clientesDeIteracion) {
+        return empleado.getCola(clientesDeIteracion).stream().findFirst().get();
     }
 
     private void handleArrivoCliente(Iteracion proxIteracion) {
@@ -155,26 +146,26 @@ public class SimulationBusiness {
             cliente.setTiempoArrivo(proxIteracion.getTiempo());
             empleadoLibre.setClienteSiendoAtendido(cliente);
         } else {
-            Empleado empleadoConMenorCola = getEmpleadoOcupadoConMenorCola(empleados);
+            Empleado empleadoConMenorCola = getEmpleadoOcupadoConMenorCola(empleados, proxIteracion.getClientes());
             int nroCliente = generarNroCliente();
             cliente = new Cliente(EstadoCliente.EA, empleadoConMenorCola, nroCliente);
             cliente.setTiempoArrivo(proxIteracion.getTiempo());
-            empleadoConMenorCola.getCola().add(cliente);
+            empleadoConMenorCola.getCola(proxIteracion.getClientes()).add(cliente);
 
-            Empleado empleadoConMayorCola = getEmpleadoConMayorCola(empleados);
-            int longActualCola = empleadoConMayorCola.getCola().size();
+            Empleado empleadoConMayorCola = getEmpleadoConMayorCola(empleados, proxIteracion.getClientes());
+            int longActualCola = empleadoConMayorCola.getCola(proxIteracion.getClientes()).size();
             if (longActualCola>longMaximaCola) longMaximaCola = longActualCola;
 
         }
         proxIteracion.getClientes().add(cliente);
     }
 
-    private Empleado getEmpleadoOcupadoConMenorCola(List<Empleado> empleados) {
-        return empleados.stream().filter(Empleado::isOcupado).min(Comparator.comparing(Empleado::getColaSize)).get();
+    private Empleado getEmpleadoOcupadoConMenorCola(List<Empleado> empleados, List<Cliente> clientes) {
+        return empleados.stream().filter(Empleado::isOcupado).min(Comparator.comparing(emp -> emp.getColaSize(clientes))).get();
     }
 
-    private Empleado getEmpleadoConMayorCola(List<Empleado> empleados) {
-        return empleados.stream().max(Comparator.comparing(Empleado::getColaSize)).get();
+    private Empleado getEmpleadoConMayorCola(List<Empleado> empleados, List<Cliente> clientes) {
+        return empleados.stream().max(Comparator.comparing(emp -> emp.getColaSize(clientes))).get();
     }
 
     private Empleado getPrimerEmpleadoLibre(List<Empleado> empleados) {

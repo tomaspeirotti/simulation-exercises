@@ -56,10 +56,10 @@ public class CSVBusiness {
         record.add(iteracion.getProxArrivo().toString());
         record.add(emp0.getEstadoEmpleado().toString());
         record.add(emp0.getFinAtencion()==null?"":emp0.getFinAtencion().toString());
-        record.add(String.valueOf(emp0.getCola().size()));
+        record.add(String.valueOf(emp0.getColaSize(iteracion.getClientes())));
         record.add(emp1.getEstadoEmpleado().toString());
         record.add(emp1.getFinAtencion()==null?"":emp1.getFinAtencion().toString());
-        record.add(String.valueOf(emp1.getCola().size()));
+        record.add(String.valueOf(emp1.getColaSize(iteracion.getClientes())));
         record.add(String.valueOf(iteracion.getLongMaximaCola()));
         if (agregarClientes) {
             iteracion.getClientes().stream()
