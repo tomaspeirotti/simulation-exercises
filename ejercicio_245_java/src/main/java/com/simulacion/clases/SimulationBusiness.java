@@ -120,7 +120,7 @@ public class SimulationBusiness {
             empleado.setEstadoEmpleado(EstadoEmpleado.OCUPADO);
             empleado.setFinAtencion(proxIteracion.getTiempo().plusSeconds(getFinAtencion(empleado,proxIteracion.getRandom1(),proxIteracion.getRandom2())));
             Cliente primerClienteEsperandoAtencion = getPrimerClienteEnLaCola(empleado, proxIteracion.getClientes());
-            primerClienteEsperandoAtencion.setEstado(EstadoCliente.SA);
+            primerClienteEsperandoAtencion.setEstado(EstadoCliente.SIENDO_ATENDIDO);
             empleado.setClienteSiendoAtendido(new Cliente(primerClienteEsperandoAtencion));
             empleado.getCola(proxIteracion.getClientes()).remove(primerClienteEsperandoAtencion);
         }
@@ -142,13 +142,13 @@ public class SimulationBusiness {
             empleadoLibre.setEstadoEmpleado(EstadoEmpleado.OCUPADO);
             empleadoLibre.setFinAtencion(proxIteracion.getTiempo().plusSeconds(getFinAtencion(empleadoLibre,proxIteracion.getRandom1(), proxIteracion.getRandom2())));
             int nroCliente = generarNroCliente();
-            cliente = new Cliente(EstadoCliente.SA, empleadoLibre, nroCliente);
+            cliente = new Cliente(EstadoCliente.SIENDO_ATENDIDO, empleadoLibre, nroCliente);
             cliente.setTiempoArrivo(proxIteracion.getTiempo());
             empleadoLibre.setClienteSiendoAtendido(cliente);
         } else {
             Empleado empleadoConMenorCola = getEmpleadoOcupadoConMenorCola(empleados, proxIteracion.getClientes());
             int nroCliente = generarNroCliente();
-            cliente = new Cliente(EstadoCliente.EA, empleadoConMenorCola, nroCliente);
+            cliente = new Cliente(EstadoCliente.ESPERANDO, empleadoConMenorCola, nroCliente);
             cliente.setTiempoArrivo(proxIteracion.getTiempo());
             empleadoConMenorCola.getCola(proxIteracion.getClientes()).add(cliente);
 

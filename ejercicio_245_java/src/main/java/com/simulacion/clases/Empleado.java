@@ -85,7 +85,7 @@ public class Empleado {
 
     public List<Cliente> getCola(List<Cliente> clientes) {
         return clientes.stream()
-                .filter(cli -> cli.getEstado()!=null && cli.getSiendoAtendidoPor().getNumero()==this.getNumero() && cli.getEstado().equals(EstadoCliente.EA))
+                .filter(cli -> cli.getEstado()!=null && cli.getSiendoAtendidoPor().getNumero()==this.getNumero() && cli.getEstado().equals(EstadoCliente.ESPERANDO))
                 .sorted(Comparator.comparing(Cliente::getTiempoArrivo))
                 .collect(Collectors.toList());
     }
