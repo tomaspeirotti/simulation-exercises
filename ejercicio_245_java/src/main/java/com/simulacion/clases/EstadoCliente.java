@@ -1,5 +1,5 @@
 package com.simulacion.clases;
 
 public enum EstadoCliente {
-    EA, SA
+    EA, SA, DE
 }

@@ -110,7 +110,7 @@ public class SimulationBusiness {
         proxIteracion.getClientes().remove(clienteAtendido);
         Cliente clienteDestruido = new Cliente();
         mapCliente(clienteAtendido, clienteDestruido);
-        clienteDestruido.setEstado(null);
+        clienteDestruido.setEstado(EstadoCliente.DE);
         proxIteracion.getClientes().add(clienteDestruido);
         if (empleado.getCola().isEmpty()) {
             empleado.setEstadoEmpleado(EstadoEmpleado.LIBRE);
