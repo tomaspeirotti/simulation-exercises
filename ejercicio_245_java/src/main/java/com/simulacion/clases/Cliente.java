@@ -5,6 +5,7 @@ import java.time.LocalTime;
 public class Cliente {
 
     private EstadoCliente estado;
+//    private String estado;
     private Empleado siendoAtendidoPor;
     private int nroCliente;
     private LocalTime tiempoArrivo;
@@ -63,4 +64,12 @@ public class Cliente {
     public void setEstado(EstadoCliente estado) {
         this.estado = estado;
     }
+
+//    public String getEstado() {
+//        return estado;
+//    }
+//
+//    public void setEstado(String estado) {
+//        this.estado = estado;
+//    }
 }
