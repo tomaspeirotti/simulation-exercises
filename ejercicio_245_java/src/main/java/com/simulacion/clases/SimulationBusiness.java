@@ -27,13 +27,13 @@ public class SimulationBusiness {
     }
 
     public List<Iteracion> startSimulation() {
-        CSVBusiness csvBusiness = new CSVBusiness();
+//        CSVBusiness csvBusiness = new CSVBusiness();
         LinkedList<Iteracion> iteraciones = new LinkedList<>();
         iteraciones.add(getPrimeraIteracion());
         while (arrivos <= params.getArrivos()) {
             Iteracion iteracion = getProximaIteracion(iteraciones.getLast());
             iteraciones.addLast(iteracion);
-            LOGGER.warn(csvBusiness.buildRecord(iteracion, true).toString());
+//            LOGGER.warn(csvBusiness.buildRecord(iteracion, true).toString());
 
         }
         LOGGER.info("Longitud de cola maxima: " + longMaximaCola);
