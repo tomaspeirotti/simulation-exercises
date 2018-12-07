@@ -22,7 +22,7 @@ public class SimulationBusiness {
     private boolean x2used = false;
 
     public List<String> getColumnasPredeterminadas() {
-        String[] columnasPredeterminadas = {"Tiempo","Frec de arrivos","Evento","RND1","RND2","Prox arrivo","E0:Estado","E0:fin At","E0:Cola","E1:Estado", "E1:fin At", "E1:Cola","Long. Max. Cola"};
+        String[] columnasPredeterminadas = {"Tiempo","Frec de arrivos","Evento","RND1","RND2","Prox arrivo","Tiempo entre arrivos","E0:Estado","E0:fin At","E0:Cola","E1:Estado", "E1:fin At", "E1:Cola","Long. Max. Cola"};
         return new ArrayList<>(Arrays.asList(columnasPredeterminadas).subList(0, columnasPredeterminadas.length));
     }
 
@@ -134,7 +134,10 @@ public class SimulationBusiness {
 
     private void handleArrivoCliente(Iteracion proxIteracion) {
         arrivos += 1;
-        proxIteracion.setProxArrivo(proxIteracion.getTiempo().plusSeconds(getProxArrivo(getIntervaloActual(proxIteracion),proxIteracion.getRandom1(),proxIteracion.getRandom2())));
+        LocalTime proxArrivo = proxIteracion.getTiempo().plusSeconds(getProxArrivo(getIntervaloActual(proxIteracion),proxIteracion.getRandom1(),proxIteracion.getRandom2()));
+        proxIteracion.setTiempoEntreArrivos(LocalTime.of(0,0, getTiempoEntreArrivos(proxArrivo, proxIteracion).getSecond()));
+        proxIteracion.setProxArrivo(proxArrivo);
+
         List<Empleado> empleados = proxIteracion.getEmpleados();
         Empleado empleadoLibre = getPrimerEmpleadoLibre(empleados);
         Cliente cliente;
@@ -158,6 +161,10 @@ public class SimulationBusiness {
 
         }
         proxIteracion.getClientes().add(cliente);
+    }
+
+    private LocalTime getTiempoEntreArrivos(LocalTime proxArrivo, Iteracion proxIteracion) {
+        return proxArrivo.minusSeconds(proxIteracion.getProxArrivo().getSecond());
     }
 
     private Empleado getEmpleadoOcupadoConMenorCola(List<Empleado> empleados, List<Cliente> clientes) {

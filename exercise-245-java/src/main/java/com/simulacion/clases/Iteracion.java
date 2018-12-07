@@ -19,6 +19,15 @@ public class Iteracion {
     private Evento evento;
     private String frecArrivos;
     private int longMaximaCola;
+    private LocalTime tiempoEntreArrivos;
+
+    public LocalTime getTiempoEntreArrivos() {
+        return tiempoEntreArrivos;
+    }
+
+    public void setTiempoEntreArrivos(LocalTime tiempoEntreArrivos) {
+        this.tiempoEntreArrivos = tiempoEntreArrivos;
+    }
 
     public int getLongMaximaCola() {
         return longMaximaCola;

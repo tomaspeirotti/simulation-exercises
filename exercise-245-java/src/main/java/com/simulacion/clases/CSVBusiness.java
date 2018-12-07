@@ -27,7 +27,7 @@ public class CSVBusiness {
         Path csvFilePath = Paths.get(folderPath.toString(), "records"+ LocalTime.now().toSecondOfDay() +".csv");
         csvFilePath = Files.createFile(csvFilePath);
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(csvFilePath);
-             CSVPrinter csvPrinter = new CSVPrinter(bufferedWriter, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+             CSVPrinter csvPrinter = new CSVPrinter(bufferedWriter, CSVFormat.EXCEL.withFirstRecordAsHeader())) {
             if (agregarColumnasClientes) {
                 for (Cliente cliente: iteraciones.get(iteraciones.size()-1).getClientes().stream().sorted(Comparator.comparing(Cliente::getNroCliente)).collect(Collectors.toList())) {
                     columnas.add("C" + cliente.getNroCliente() + ":Estado");
@@ -54,6 +54,7 @@ public class CSVBusiness {
         record.add(new DecimalFormat("##.##").format(iteracion.getRandom1()));
         record.add(new DecimalFormat("##.##").format(iteracion.getRandom2()));
         record.add(iteracion.getProxArrivo().toString());
+        record.add(iteracion.getTiempoEntreArrivos() != null ? iteracion.getTiempoEntreArrivos().toString() : null);
         record.add(emp0.getEstadoEmpleado().toString());
         record.add(emp0.getFinAtencion()==null?"":emp0.getFinAtencion().toString());
         record.add(String.valueOf(emp0.getColaSize(iteracion.getClientes())));
