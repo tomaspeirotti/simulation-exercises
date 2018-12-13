@@ -1,0 +1,159 @@
+{
+  "clientes": [
+    {
+      "dni": 0,
+      "email": "algun@email.com",
+      "estado": "INSCRIPTO",
+      "fechaProbableParto": "2018-10-20T19:34:34.213Z",
+      "fechaRegistro": "2018-10-20T19:34:34.213Z",
+      "fechaUltimaMenstruacion": "2018-10-20T19:34:34.213Z",
+      "id": 1,
+      "nombre": "Andrea La Ley",
+      "nullAtributes": [
+        "string"
+      ],
+      "obraSocial": {
+        "centroAtencion": "string",
+        "id": 0,
+        "nombre": "string",
+        "nullAtributes": [
+          "string"
+        ]
+      },
+      "telefono": "string"
+    }
+  ],
+  "obraSociales": [
+    {
+      "centroAtencion": "string",
+      "id": 1,
+      "nombre": "string",
+      "nullAtributes": [
+        "string"
+      ]
+    }
+  ],
+  "actividades": [
+    {
+      "id": 2,
+      "nombre": "Gimnasia para embarazadas",
+      "descripcion": "des",
+      "horaDesde": "18/01/1970 04:40",
+      "horaHasta": "18/01/1970 04:40",
+      "estado": "EN_CURSO/FINALIZADA",
+      "precio": 123,
+      "profesor": 1
+    }
+  ],
+  "cursos": [
+    {
+      "id": 1,
+      "descripcion": "des",
+      "precio": 123,
+      "cantidadClases": 5,
+      "estado": "EN_CURSO/FINALIZADA",
+      "profesor": 1
+    }
+  ],
+  "talleres": [
+    {
+      "id": 1,
+      "nombre": "Reanimacion pediatrica",
+      "descripcion": "des",
+      "precio": 123,
+      "fecha": "18/01/1970 04:40",
+      "estado": "EN_CURSO/FINALIZADA",
+      "profesor": 1
+    }
+  ],
+  "inscripciones": [
+    {
+      "actividad": {
+        "descripcion": "string",
+        "estado": "EN_CURSO",
+        "horaDesde": "18/01/1970 04:40",
+        "horaHasta": "18/01/1970 04:40",
+        "id": 0,
+        "nombre": "string",
+        "nullAtributes": [
+          "string"
+        ],
+        "precio": 0,
+        "profesor": {
+          "dni": 0,
+          "email": "string",
+          "estado": "ACTIVO",
+          "id": 0,
+          "nombre": "string",
+          "nullAtributes": [
+            "string"
+          ],
+          "telefono": "string"
+        }
+      },
+      "cliente": {
+        "dni": 0,
+        "email": "string",
+        "estado": "INSCRIPTO",
+        "fechaProbableParto": "2018-10-20T19:34:34.262Z",
+        "fechaRegistro": "2018-10-20T19:34:34.262Z",
+        "fechaUltimaMenstruacion": "2018-10-20T19:34:34.262Z",
+        "id": 0,
+        "nombre": "string",
+        "nullAtributes": [
+          "string"
+        ],
+        "obraSocial": {
+          "centroAtencion": "string",
+          "id": 0,
+          "nombre": "string",
+          "nullAtributes": [
+            "string"
+          ]
+        },
+        "telefono": "string"
+      },
+      "creditos": 0,
+      "estado": "VIGENTE",
+      "fecha": "2018-10-20T19:34:34.262Z",
+      "id": 1,
+      "nullAtributes": [
+        "string"
+      ],
+      "ultimaAsistencia": "2018-10-20T19:34:34.262Z"
+    }
+  ],
+  "calendarios": [
+    {
+      "curso": {
+        "cantidadClases": 0,
+        "descripcion": "string",
+        "estado": "EN_CURSO",
+        "id": 0,
+        "nullAtributes": [
+          "string"
+        ],
+        "precio": 0,
+        "profesor": {
+          "dni": 0,
+          "email": "string",
+          "estado": "ACTIVO",
+          "id": 0,
+          "nombre": "string",
+          "nullAtributes": [
+            "string"
+          ],
+          "telefono": "string"
+        }
+      },
+      "fecha": "2018-10-20T19:34:34.191Z",
+      "id": 1,
+      "material": [
+        "string"
+      ],
+      "nullAtributes": [
+        "string"
+      ]
+    }
+  ]
+}
