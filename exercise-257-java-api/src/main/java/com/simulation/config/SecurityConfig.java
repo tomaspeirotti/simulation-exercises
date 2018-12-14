@@ -38,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         UserDetails admin = userBuilder
                 .username("admin")
-                .password("nataleadmin")
+                .password("admin")
                 .roles("USER","ADMIN")
                 .build();
 

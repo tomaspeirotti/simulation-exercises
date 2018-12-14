@@ -1,7 +1,5 @@
 package com.simulation.model.clases;
 
-import com.simulacion.dto.IntervaloDTO;
-
 import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,15 +8,11 @@ public class Iteracion {
 
     private int nroIteracion;
     private LocalTime tiempo;
-    private List<IntervaloDTO> intervalos;
-    private double random1;
-    private double random2;
+    private double rnd;
     private LocalTime proxArrivo;
     private List<Empleado> empleados;
     private LinkedList<Cliente> clientes;
     private Evento evento;
-    private String frecArrivos;
-    private int longMaximaCola;
     private LocalTime tiempoEntreArrivos;
 
     public LocalTime getTiempoEntreArrivos() {
@@ -27,22 +21,6 @@ public class Iteracion {
 
     public void setTiempoEntreArrivos(LocalTime tiempoEntreArrivos) {
         this.tiempoEntreArrivos = tiempoEntreArrivos;
-    }
-
-    public int getLongMaximaCola() {
-        return longMaximaCola;
-    }
-
-    public void setLongMaximaCola(int longMaximaCola) {
-        this.longMaximaCola = longMaximaCola;
-    }
-
-    public String getFrecArrivos() {
-        return frecArrivos;
-    }
-
-    public void setFrecArrivos(String frecArrivos) {
-        this.frecArrivos = frecArrivos;
     }
 
     public Evento getEvento() {
@@ -77,20 +55,12 @@ public class Iteracion {
         this.proxArrivo = proxArrivo;
     }
 
-    public List<IntervaloDTO> getIntervalos() {
-        return intervalos;
+    public double getRnd() {
+        return rnd;
     }
 
-    public void setIntervalos(List<IntervaloDTO> intervalos) {
-        this.intervalos = intervalos;
-    }
-
-    public double getRandom1() {
-        return random1;
-    }
-
-    public void setRandom1(double random1) {
-        this.random1 = random1;
+    public void setRnd(double rnd) {
+        this.rnd = rnd;
     }
 
     public List<Empleado> getEmpleados() {
@@ -107,13 +77,5 @@ public class Iteracion {
 
     public void setClientes(LinkedList<Cliente> clientes) {
         this.clientes = clientes;
-    }
-
-    public double getRandom2() {
-        return random2;
-    }
-
-    public void setRandom2(double random2) {
-        this.random2 = random2;
     }
 }

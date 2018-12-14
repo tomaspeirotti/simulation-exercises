@@ -1,6 +1,6 @@
 package com.simulation.model.clases;
 
-import com.simulacion.dto.ParametroDTO;
+import com.simulation.model.dto.ParametroDTO;
 
 import java.time.LocalTime;
 import java.util.Comparator;

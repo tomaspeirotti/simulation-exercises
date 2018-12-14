@@ -2,22 +2,22 @@ package com.simulation.model.dto;
 
 public class ParametroDTO {
 
-    private double media;
-    private double varianza;
+    private int a;
+    private int b;
 
-    public double getMedia() {
-        return media;
+    public int getA() {
+        return a;
     }
 
-    public void setMedia(double media) {
-        this.media = media;
+    public void setA(int a) {
+        this.a = a;
     }
 
-    public double getVarianza() {
-        return varianza;
+    public int getB() {
+        return b;
     }
 
-    public void setVarianza(double varianza) {
-        this.varianza = varianza;
+    public void setB(int b) {
+        this.b = b;
     }
 }

@@ -1,5 +1,8 @@
-package com.simulation.model.clases;
+package com.simulation.service;
 
+import com.simulation.model.clases.Cliente;
+import com.simulation.model.clases.Empleado;
+import com.simulation.model.clases.Iteracion;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
@@ -49,10 +52,8 @@ public class CSVBusiness {
         Empleado emp0 = iteracion.getEmpleados().stream().filter(emp -> emp.getNumero()==0).findFirst().get();
         Empleado emp1 = iteracion.getEmpleados().stream().filter(emp -> emp.getNumero()==1).findFirst().get();
         record.add(iteracion.getTiempo().toString());
-        record.add(iteracion.getFrecArrivos());
         record.add(iteracion.getEvento().getTipo().toString());
-        record.add(new DecimalFormat("##.##").format(iteracion.getRandom1()));
-        record.add(new DecimalFormat("##.##").format(iteracion.getRandom2()));
+        record.add(new DecimalFormat("##.##").format(iteracion.getRnd()));
         record.add(iteracion.getProxArrivo().toString());
         record.add(iteracion.getTiempoEntreArrivos() != null ? iteracion.getTiempoEntreArrivos().toString() : null);
         record.add(emp0.getEstadoEmpleado().toString());
@@ -61,7 +62,6 @@ public class CSVBusiness {
         record.add(emp1.getEstadoEmpleado().toString());
         record.add(emp1.getFinAtencion()==null?"":emp1.getFinAtencion().toString());
         record.add(String.valueOf(emp1.getColaSize(iteracion.getClientes())));
-        record.add(String.valueOf(iteracion.getLongMaximaCola()));
         if (agregarClientes) {
             iteracion.getClientes().stream()
                     .sorted(Comparator.comparing(Cliente::getNroCliente))
