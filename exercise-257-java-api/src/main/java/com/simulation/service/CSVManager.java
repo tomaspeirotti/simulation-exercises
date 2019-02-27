@@ -20,10 +20,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CSVBusiness {
+public class CSVManager {
 
     private static final String DESKTOP_DIRECTORY = Paths.get("C:\\Users\\Tomas\\Desktop").toString();
-    private static final Logger LOGGER = LoggerFactory.getLogger(CSVBusiness.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CSVManager.class);
 
     public void printCSV(List<Iteracion> iteraciones, List<String> columnas, boolean agregarColumnasClientes) throws IOException {
         Path folderPath = createTempFolder("Simulacion");
