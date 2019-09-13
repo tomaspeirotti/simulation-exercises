@@ -19,11 +19,6 @@ public class SimulationServiceImpl implements SimulationService {
     public SimulationServiceImpl() {
     }
 
-    public List<String> getColumnasPredeterminadas() {
-        String[] columnasPredeterminadas = {"Tiempo","Frec de arrivos","Evento","RND1","RND2","Prox arrivo","Tiempo entre arrivos","E0:Estado","E0:fin At","E0:Cola","E1:Estado", "E1:fin At", "E1:Cola","Long. Max. Cola"};
-        return new ArrayList<>(Arrays.asList(columnasPredeterminadas).subList(0, columnasPredeterminadas.length));
-    }
-
     @Override
     public List<Iteracion> startSimulation(ParametrosDTO parametrosDTO) {
         LinkedList<Iteracion> iteraciones = new LinkedList<>();

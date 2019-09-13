@@ -1,0 +1,18 @@
+version: '2'
+volumes:
+  dbdata:
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'simulation'
+      MYSQL_USER: 'simulation'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3307:3306'
+    volumes:
+      - ./dbdata:/var/lib/mysql
