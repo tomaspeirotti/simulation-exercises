@@ -8,5 +8,6 @@ import java.util.List;
 
 @Service
 public interface SimulationService {
-    List<Iteracion> startSimulation(ParametrosDTO parametrosDTO);
+    void startSimulation(ParametrosDTO parametrosDTO);
+    List<Iteracion> getIterations(int page, int size);
 }

@@ -1,139 +1,103 @@
 package com.simulation.service;
 
-
-import com.simulation.model.clases.*;
+import com.simulation.model.clases.DoubleTuple;
+import com.simulation.model.clases.Iteracion;
 import com.simulation.model.dto.ParametrosDTO;
+import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.time.LocalTime;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
-@Component
+@Service
 public class SimulationServiceImpl implements SimulationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimulationServiceImpl.class);
-    private int arrivos = 0;
+  private static final Logger LOGGER = LoggerFactory.getLogger(SimulationServiceImpl.class);
 
-    public SimulationServiceImpl() {
+  private List<DoubleTuple> plazos = this.initPlazos();
+  private List<DoubleTuple> demandas = this.initDemandas();
+  private ParametrosDTO params;
+  private LinkedList<Iteracion> iteraciones;
+
+  public SimulationServiceImpl() {
+  }
+
+  @Override
+  public void startSimulation(ParametrosDTO parametrosDTO) {
+    this.params = parametrosDTO;
+    iteraciones = new LinkedList<>();
+    for (Long i = 0L; i < parametrosDTO.getDiasDeOperacion(); i++) {
+      Iteracion it = new Iteracion();
+      it.setDia(i);
+      iteraciones.add(it);
     }
+  }
 
-    @Override
-    public List<Iteracion> startSimulation(ParametrosDTO parametrosDTO) {
-        LinkedList<Iteracion> iteraciones = new LinkedList<>();
-        iteraciones.add(getPrimeraIteracion());
-        while (arrivos <= parametrosDTO.getArrivos()) {
-            Iteracion iteracion = getProximaIteracion(iteraciones.getLast());
-            iteraciones.addLast(iteracion);
-        }
-        return iteraciones;
+  @Override
+  public List<Iteracion> getIterations(int page, int size) {
+    return ListUtils.partition(iteraciones, size).get(page);
+  }
+
+  private List<DoubleTuple> initPlazos() {
+    List<DoubleTuple> plazos = new LinkedList<>();
+    plazos.add(new DoubleTuple(0D, 0.09));
+    plazos.add(new DoubleTuple(0.1, 0.29));
+    plazos.add(new DoubleTuple(0.3, 0.59));
+    plazos.add(new DoubleTuple(0.6, 0.89));
+    plazos.add(new DoubleTuple(0.9, 0.94));
+    plazos.add(new DoubleTuple(0.95, 0.99));
+    return plazos;
+  }
+
+  private int getPlazoDeReposicion() {
+    Double rnd = getRandom();
+    int plazo = -1;
+    for (DoubleTuple tuple : this.plazos) {
+      if (rnd >= tuple.getX1() && rnd <= tuple.getX2()) {
+        plazo = plazos.indexOf(tuple);
+      }
     }
-
-    private Iteracion getProximaIteracion(Iteracion ultimaIteracion) {
-        Iteracion proxIteracion = new Iteracion();
-        proxIteracion.setNroIteracion(ultimaIteracion.getNroIteracion()+1);
-
-        proxIteracion.setEmpleados(getEmpleadosUltimaIteracion(ultimaIteracion));
-        proxIteracion.setClientes(getClientesUltimaIteracion(ultimaIteracion));
-
-        Evento proxEvent = getProximoEvento(ultimaIteracion);
-        proxIteracion.setEvento(proxEvent);
-        proxIteracion.setTiempo(proxEvent.getTiempo());
-        proxIteracion.setRnd(getRandom());
-        proxIteracion.setProxArrivo(ultimaIteracion.getProxArrivo());
-
-        handleEvent(proxIteracion);
-
-        return proxIteracion;
+    if (plazo == -1) {
+      throw new IllegalArgumentException();
+    } else {
+      return plazo;
     }
+  }
 
-    private LinkedList<Cliente> getClientesUltimaIteracion(Iteracion ultimaIteracion) {
-        LinkedList<Cliente> clientesNuevaIteracion = new LinkedList<>();
-        ultimaIteracion.getClientes().forEach(cliente -> clientesNuevaIteracion.add(new Cliente(cliente)));
-        return clientesNuevaIteracion;
+  private List<DoubleTuple> initDemandas() {
+    List<DoubleTuple> demandas = new LinkedList<>();
+    demandas.add(new DoubleTuple(0D, 0.049));
+    demandas.add(new DoubleTuple(0.05, 0.24));
+    demandas.add(new DoubleTuple(0.25, 0.64));
+    demandas.add(new DoubleTuple(0.65, 0.79));
+    demandas.add(new DoubleTuple(0.8, 0.89));
+    demandas.add(new DoubleTuple(0.9, 0.94));
+    demandas.add(new DoubleTuple(0.95, 0.99));
+    return demandas;
+  }
+
+  private int getDemanda() {
+    Double rnd = getRandom();
+    int demanda = -1;
+    for (DoubleTuple tuple : this.demandas) {
+      if (rnd >= tuple.getX1() && rnd <= tuple.getX2()) {
+        demanda = demandas.indexOf(tuple);
+      }
     }
-
-    private List<Empleado> getEmpleadosUltimaIteracion(Iteracion ultimaIteracion) {
-        LinkedList<Empleado> empleadosUltimaIteracion = new LinkedList<>();
-        ultimaIteracion.getEmpleados().forEach(empleadoUltimaIt ->{
-            Empleado nuevoEmpleado = new Empleado();
-            if (empleadoUltimaIt.getClienteSiendoAtendido() != null) nuevoEmpleado.setClienteSiendoAtendido(new Cliente(empleadoUltimaIt.getClienteSiendoAtendido()));
-            nuevoEmpleado.setFinAtencion(empleadoUltimaIt.getFinAtencion());
-            nuevoEmpleado.setEstadoEmpleado(empleadoUltimaIt.getEstadoEmpleado());
-            nuevoEmpleado.setAtencion(empleadoUltimaIt.getAtencion());
-            nuevoEmpleado.setNombre(empleadoUltimaIt.getNombre());
-            nuevoEmpleado.setNumero(empleadoUltimaIt.getNumero());
-            empleadosUltimaIteracion.add(nuevoEmpleado);
-        });
-        return empleadosUltimaIteracion;
+    if (demanda == -1) {
+      throw new IllegalArgumentException();
+    } else {
+      return demanda;
     }
+  }
 
-    private void handleEvent(Iteracion proxIteracion) {
-        switch (proxIteracion.getEvento().getTipo()) {
-            case ARRIVA_CLIENTE:
-                handleArrivoCliente(proxIteracion);
-                break;
-            case FIN_ATENCION_EMP_0:
-                handleFinAtencionEmp(proxIteracion, 0);
-                break;
-            case FIN_ATENCION_EMP_1:
-                handleFinAtencionEmp(proxIteracion, 1);
-                break;
-            case INICIALIZACION:
-                break;
-            default: break;
-        }
-    }
-
-    private void handleFinAtencionEmp(Iteracion proxIteracion, int numero) {
-
-    }
-
-    private Cliente getPrimerClienteEnLaCola(Empleado empleado, List<Cliente> clientesDeIteracion) {
-        return empleado.getCola(clientesDeIteracion).stream().findFirst().get();
-    }
-
-    private void handleArrivoCliente(Iteracion proxIteracion) {
-
-    }
-
-    private LocalTime getTiempoEntreArrivos(LocalTime proxArrivo, Iteracion proxIteracion) {
-        return proxArrivo.minusSeconds(proxIteracion.getProxArrivo().getSecond());
-    }
-
-    private Empleado getEmpleadoOcupadoConMenorCola(List<Empleado> empleados, List<Cliente> clientes) {
-        return empleados.stream().filter(Empleado::isOcupado).min(Comparator.comparing(emp -> emp.getColaSize(clientes))).get();
-    }
-
-    private Empleado getEmpleadoConMayorCola(List<Empleado> empleados, List<Cliente> clientes) {
-        return empleados.stream().max(Comparator.comparing(emp -> emp.getColaSize(clientes))).get();
-    }
-
-    private Empleado getPrimerEmpleadoLibre(List<Empleado> empleados) {
-        return (empleados.stream().filter(Empleado::isLibre).count() > 0) ? empleados.stream().filter(Empleado::isLibre).findFirst().get() : null;
-    }
-
-    private Evento getProximoEvento(Iteracion ultimaIteracion) {
-        List<Evento> eventos = new ArrayList<>();
-        Empleado emp0 = ultimaIteracion.getEmpleados().stream().filter(emp -> emp.getNumero()==0).findFirst().get();
-        Empleado emp1 = ultimaIteracion.getEmpleados().stream().filter(emp -> emp.getNumero()==1).findFirst().get();
-        eventos.add(new Evento(ultimaIteracion.getProxArrivo(), TipoEvento.ARRIVA_CLIENTE));
-        if (emp0.getFinAtencion() != null) eventos.add(new Evento(emp0.getFinAtencion(), TipoEvento.FIN_ATENCION_EMP_0));
-        if (emp1.getFinAtencion() != null) eventos.add(new Evento(emp1.getFinAtencion(), TipoEvento.FIN_ATENCION_EMP_1));
-        return eventos.stream().min(Comparator.comparing(Evento::getTiempo)).get();
-    }
-
-    public Iteracion getPrimeraIteracion() {
-
-
-        return null;
-    }
-
-    public double getRandom() {
-        Random r = new Random();
-        int low = 1;
-        int high = 100;
-        return (r.nextInt(high-low) + low)*0.01;
-    }
+  private double getRandom() {
+    Random r = new Random();
+    int low = 0;
+    int high = 99;
+    return (r.nextInt(high - low) + low) * 0.01;
+  }
 }

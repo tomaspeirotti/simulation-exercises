@@ -6,9 +6,9 @@
 </template>
 
 <script>
-import Simulation from './components/Simulation.vue' 
+    import Simulation from './components/Simulation.vue'
 
-export default {
+    export default {
   name: 'app',
   data () {
     return {}

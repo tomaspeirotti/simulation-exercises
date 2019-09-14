@@ -167,7 +167,7 @@ comprar
 </template>
 
 <script>
-    import {required, minValue, maxValue, numeric, integer} from 'vuelidate/lib/validators'
+    import {integer, maxValue, minValue, numeric, required} from 'vuelidate/lib/validators'
 
     export default {
         name: 'simulation',
