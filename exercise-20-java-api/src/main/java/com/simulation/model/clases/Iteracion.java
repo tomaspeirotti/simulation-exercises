@@ -9,12 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Iteracion {
 
-  private Long dia;
+  private int dia;
   private Demanda demanda;
   private Pedido pedido;
-  private Ks ks;
   private double km;
   private double ko;
-
+  private Ks ks;
+  private double costoTotal;
+  private double costoAcumulado;
 
 }

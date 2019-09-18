@@ -9,9 +9,10 @@ public class ParametrosDTO {
     private int cantReposicion;
     private int nivelReposicion;
     private int diasParaReponer;
-    private int inventarioInicial;
+    private int stockInicial;
     private int costoMantenimiento;
     private int costoOrdenamiento;
     private int costoStockout;
+    private int diasParaPagarStockOut;
 
 }

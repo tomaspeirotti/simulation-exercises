@@ -1,22 +1,3 @@
-spring:
-#  datasource:
-#    platform: mysql
-#    url: jdbc:mysql://localhost:3307/simulation?useSSL=false&autoReconnect=true&allowPublicKeyRetrieval=true
-#    username: simulation
-#    password: password
-#    driverClassName: com.mysql.cj.jdbc.Driver
-#  jpa:
-#    database: mysql
-#    show-sql: false
-#    hibernate:
-#      ddl-auto: create-drop
-#      naming:
-#        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-#        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-#    properties:
-#      hibernate:
-#        dialect: org.hibernate.dialect.MySQL8Dialect
-
 server:
   port: 8090
 

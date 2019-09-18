@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <h2>Boletería - Ejercicio 245</h2>
+    <h2>Ejercicio 20</h2>
     <Simulation/>
   </div>
 </template>

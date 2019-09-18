@@ -1,6 +1,7 @@
 package com.simulation.rest.controllers;
 
 import com.simulation.model.clases.Iteracion;
+import com.simulation.model.clases.IterationsResponseDTO;
 import com.simulation.model.dto.ParametrosDTO;
 import com.simulation.service.SimulationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +15,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/")
-public class ParametrosController {
+public class SimulationController {
 
   private SimulationService simulationService;
 
   @Autowired
-  public ParametrosController(SimulationService simulationService) {
+  public SimulationController(SimulationService simulationService) {
     this.simulationService = simulationService;
   }
 
@@ -30,7 +31,7 @@ public class ParametrosController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "iterations")
-  public List<Iteracion> getPage(int page, int size) {
+  public IterationsResponseDTO getPage(int page, int size) {
     return this.simulationService.getIterations(page, size);
   }
 }
