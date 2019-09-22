@@ -4,8 +4,9 @@ import lombok.Data;
 
 @Data
 public class Pedido {
-  private double rnd;
-  private int plazoDeReposicion;
-  private int ultimaReposicion;
-  private int diaDeResposicion;
+  private String rnd;
+  private String plazoDeReposicion;
+  private String ultimaReposicion;
+  private String diaDeResposicion;
+  private boolean enCurso;
 }

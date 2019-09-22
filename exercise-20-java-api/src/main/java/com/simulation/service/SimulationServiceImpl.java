@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -26,16 +27,16 @@ public class SimulationServiceImpl implements SimulationService {
   public SimulationServiceImpl() {}
 
   @Override
-  public void startSimulation(ParametrosDTO parametrosDTO) {
+  public SimulationResponseDTO startSimulation(ParametrosDTO parametrosDTO) {
     this.params = parametrosDTO;
     iteraciones = new LinkedList<>();
-    for (int i = 0; i < parametrosDTO.getDiasDeOperacion(); i++) {
+    for (int i = 1; i < parametrosDTO.getDiasDeOperacion(); i++) {
 
       Iteracion itActual = new Iteracion();
       Iteracion itPrevia;
 
-      if (i > 0) {
-        itPrevia = iteraciones.get(i - 1);
+      if (i > 1) {
+        itPrevia = iteraciones.getLast();
       } else {
         itPrevia = null;
       }
@@ -58,41 +59,49 @@ public class SimulationServiceImpl implements SimulationService {
       itActual.setKs(ks);
 
       itActual.setCostoTotal(km + ko + ks.getKs());
-      if (i == 0) {
-        itActual.setCostoAcumulado(0);
+      if (i == 1) {
+        itActual.setCostoAcumulado(itActual.getCostoTotal());
       } else {
-        itActual.setCostoAcumulado(itPrevia.getCostoTotal() + itActual.getCostoTotal());
+        itActual.setCostoAcumulado(itActual.getCostoTotal() + itPrevia.getCostoAcumulado());
       }
 
       iteraciones.add(itActual);
     }
+    return SimulationResponseDTO.builder()
+        .costoPromedioPorDia(iteraciones.getLast().getCostoAcumulado() / iteraciones.size())
+        .totalAcumulado(iteraciones.getLast().getCostoAcumulado())
+        .build();
   }
 
   private Ks buildKs(Iteracion itActual) {
     Ks ks = new Ks();
     Demanda demandaActual = itActual.getDemanda();
     if (demandaActual.getStock() <= 0 && demandaActual.getCantidad() > 0) {
-      ks.setKs(demandaActual.getStock() * params.getCostoStockout());
+      ks.setKs(Math.abs(demandaActual.getStock() * params.getCostoStockout()));
       ks.setDiaDeCobro(itActual.getDia() + params.getDiasParaPagarStockOut());
     }
     return ks;
   }
 
   private double buildKo(Iteracion itActual) {
-    return itActual.getPedido().getRnd() > 0 ? params.getCostoOrdenamiento() : 0;
+    return !itActual.getPedido().getRnd().isEmpty() ? params.getCostoOrdenamiento() : 0;
   }
 
   private double buildKm(Iteracion itActual) {
-    return itActual.getDemanda().getStock() * params.getCostoMantenimiento();
+    if (itActual.getDemanda().getStock() > 0) {
+      return itActual.getDemanda().getStock() * params.getCostoMantenimiento();
+    } else {
+      return 0D;
+    }
   }
 
   private Demanda buildDemanda(Iteracion itPrevia, int dia) {
     Demanda dm = new Demanda();
     if (itPrevia != null) BeanUtils.copyProperties(itPrevia.getDemanda(), dm);
-    if (dia == 0) dm.setStock(params.getStockInicial());
+    if (dia == 1) dm.setStock(params.getStockInicial());
     double rnd = getRandom();
     dm.setCantidad(getDemanda(rnd));
-    dm.setRnd(rnd);
+    dm.setRnd(String.valueOf(rnd));
     if (itPrevia != null) {
       dm.setStock(dm.getStock() - itPrevia.getDemanda().getCantidad());
     }
@@ -105,31 +114,45 @@ public class SimulationServiceImpl implements SimulationService {
       BeanUtils.copyProperties(itPrevia.getPedido(), pedido);
     }
     try {
-      pedido.setRnd(-1);
+      pedido.setRnd("");
       if (isPedidoNecesario(itPrevia, itActual)) {
-        double rnd = getRandom();
-        pedido.setRnd(rnd);
-        pedido.setPlazoDeReposicion(getPlazoDeReposicion(rnd));
-        pedido.setDiaDeResposicion(pedido.getPlazoDeReposicion() + itActual.getDia());
+        pedido.setEnCurso(true);
+        if (params.getNivelReposicion() > 0) {
+          double rnd = getRandom();
+          pedido.setRnd(String.valueOf(rnd));
+          pedido.setPlazoDeReposicion(String.valueOf(getPlazoDeReposicion(rnd)));
+          pedido.setDiaDeResposicion(
+              String.valueOf(Integer.parseInt(pedido.getPlazoDeReposicion()) + itActual.getDia()));
+        } else {
+          pedido.setPlazoDeReposicion(String.valueOf(params.getDiasParaReponer()));
+          pedido.setDiaDeResposicion(
+              String.valueOf(Integer.parseInt(pedido.getPlazoDeReposicion()) + itActual.getDia()));
+        }
         return pedido;
-      } else if (llegoPedido(itActual)) {
+      } else if (llegoPedido(itPrevia, itActual)) {
         itActual
             .getDemanda()
             .setStock(itPrevia.getDemanda().getStock() + params.getCantReposicion());
-        pedido.setUltimaReposicion(itActual.getDia());
+        pedido.setUltimaReposicion(String.valueOf(itActual.getDia()));
+        pedido.setPlazoDeReposicion("");
+        pedido.setDiaDeResposicion("");
+        pedido.setEnCurso(false);
+        return pedido;
+      } else { // En curso
+        pedido.setPlazoDeReposicion("");
         return pedido;
       }
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }
-    if (itPrevia != null) pedido = itPrevia.getPedido();
-    return pedido;
   }
 
-  private boolean llegoPedido(Iteracion itActual) {
+  private boolean llegoPedido(Iteracion itPrevia, Iteracion itActual) {
     int diaDeResposicion;
-    if (itActual.getPedido() != null) {
-      diaDeResposicion = itActual.getPedido().getDiaDeResposicion();
+    if (itPrevia != null
+        && itPrevia.getPedido().getDiaDeResposicion() != null
+        && !itPrevia.getPedido().getDiaDeResposicion().isEmpty()) {
+      diaDeResposicion = Integer.parseInt(itPrevia.getPedido().getDiaDeResposicion());
     } else {
       return false;
     }
@@ -137,25 +160,28 @@ public class SimulationServiceImpl implements SimulationService {
   }
 
   private boolean isPedidoNecesario(Iteracion itPrevia, Iteracion itActual) {
-    if (itActual.getDia() == 0) return true;
+    if (itActual.getDia() == 1) return true;
+    if (itPrevia != null && itPrevia.getPedido().isEnCurso()) return false;
     if (params.getDiasParaReponer() > 0 && params.getNivelReposicion() > 0)
       throw new IllegalArgumentException(
           "Parametros invalidos, dias para reponer y nivel de reposicion > 0");
 
-    int ultimaReposicion;
+    if (params.getDiasParaReponer() > 0) {
+      int ultimaReposicion;
+      if (itPrevia == null) {
+        ultimaReposicion = 0;
+      } else if (!StringUtils.isEmpty(itPrevia.getPedido().getUltimaReposicion())) {
+        ultimaReposicion = Integer.parseInt(itPrevia.getPedido().getUltimaReposicion());
+      } else {
+        ultimaReposicion = 0;
+      }
+      return (params.getDiasParaReponer() < (itActual.getDia() - ultimaReposicion));
 
-    if (itPrevia == null) {
-      ultimaReposicion = 0;
+    } else if (params.getNivelReposicion() > 0) {
+      return (itActual.getDemanda().getStock() <= params.getNivelReposicion());
     } else {
-      ultimaReposicion = itPrevia.getPedido().getUltimaReposicion();
+      return false;
     }
-
-    return ((params.getDiasParaReponer() > 0
-            && params.getNivelReposicion() == 0
-            && params.getDiasParaReponer() < (itActual.getDia() - ultimaReposicion))
-        || (params.getDiasParaReponer() == 0
-            && params.getNivelReposicion() > 0
-            && itActual.getDemanda().getStock() <= params.getNivelReposicion()));
   }
 
   @Override
@@ -164,8 +190,7 @@ public class SimulationServiceImpl implements SimulationService {
       throw new IllegalArgumentException("Simulate before getting iterations!");
     return IterationsResponseDTO.builder()
         .iteraciones(ListUtils.partition(iteraciones, size).get(page))
-        .totalAcumulado(iteraciones.getLast().getCostoAcumulado())
-        .costoPromedioPorDia(iteraciones.getLast().getCostoAcumulado() / iteraciones.size())
+        .totalRows(iteraciones.size())
         .build();
   }
 

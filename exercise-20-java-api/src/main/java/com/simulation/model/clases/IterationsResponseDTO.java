@@ -13,6 +13,5 @@ import java.util.List;
 @Builder
 public class IterationsResponseDTO {
   List<Iteracion> iteraciones;
-  double totalAcumulado;
-  double costoPromedioPorDia;
+  int totalRows;
 }
