@@ -31,6 +31,13 @@ public class SimulationServiceImpl implements SimulationService {
     this.params = parametrosDTO;
     iteraciones = new LinkedList<>();
     proxCobrosKs = new LinkedList<>();
+    if (params.getDiasParaReponer() > 0 && params.getNivelReposicion() > 0) {
+      throw new IllegalArgumentException(
+          "Parametros invalidos, dias para reponer y nivel de reposicion mayores a cero");
+    } else if (params.getDiasParaReponer() == 0 && params.getNivelReposicion() == 0) {
+      throw new IllegalArgumentException(
+          "Parametros invalidos, dias para reponer y nivel de reposicion iguales a cero");
+    }
     for (int i = 1; i < parametrosDTO.getDiasDeOperacion(); i++) {
 
       Iteracion itActual = new Iteracion();
@@ -185,9 +192,6 @@ public class SimulationServiceImpl implements SimulationService {
   private boolean isPedidoNecesario(Iteracion itPrevia, Iteracion itActual) {
     if (itActual.getDia() == 1) return true;
     if (itPrevia != null && itPrevia.getPedido().isEnCurso()) return false;
-    if (params.getDiasParaReponer() > 0 && params.getNivelReposicion() > 0)
-      throw new IllegalArgumentException(
-          "Parametros invalidos, dias para reponer y nivel de reposicion > 0");
 
     if (params.getDiasParaReponer() > 0) {
       int ultimaReposicion;
@@ -232,7 +236,7 @@ public class SimulationServiceImpl implements SimulationService {
     int plazo = -1;
     for (DoubleTuple tuple : this.plazos) {
       if (rnd >= tuple.getX1() && rnd <= tuple.getX2()) {
-        plazo = plazos.indexOf(tuple)+1; // TODO: CHECK
+        plazo = plazos.indexOf(tuple) + 1; // TODO: CHECK
       }
     }
     if (plazo == -1) {
