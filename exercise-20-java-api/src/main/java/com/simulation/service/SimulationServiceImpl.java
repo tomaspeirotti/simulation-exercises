@@ -10,9 +10,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 public class SimulationServiceImpl implements SimulationService {
@@ -23,6 +22,7 @@ public class SimulationServiceImpl implements SimulationService {
   private List<DoubleTuple> demandas = this.initDemandas();
   private ParametrosDTO params;
   private LinkedList<Iteracion> iteraciones;
+  private LinkedList<Ks> proxCobrosKs = new LinkedList<>();
 
   public SimulationServiceImpl() {}
 
@@ -30,6 +30,7 @@ public class SimulationServiceImpl implements SimulationService {
   public SimulationResponseDTO startSimulation(ParametrosDTO parametrosDTO) {
     this.params = parametrosDTO;
     iteraciones = new LinkedList<>();
+    proxCobrosKs = new LinkedList<>();
     for (int i = 1; i < parametrosDTO.getDiasDeOperacion(); i++) {
 
       Iteracion itActual = new Iteracion();
@@ -57,8 +58,8 @@ public class SimulationServiceImpl implements SimulationService {
 
       Ks ks = buildKs(itActual);
       itActual.setKs(ks);
-
       itActual.setCostoTotal(km + ko + ks.getKs());
+
       if (i == 1) {
         itActual.setCostoAcumulado(itActual.getCostoTotal());
       } else {
@@ -74,13 +75,35 @@ public class SimulationServiceImpl implements SimulationService {
   }
 
   private Ks buildKs(Iteracion itActual) {
-    Ks ks = new Ks();
+    Ks ksAMostrar = new Ks();
+    Ks ksAGuardar = new Ks();
     Demanda demandaActual = itActual.getDemanda();
-    if (demandaActual.getStock() <= 0 && demandaActual.getCantidad() > 0) {
-      ks.setKs(Math.abs(demandaActual.getStock() * params.getCostoStockout()));
-      ks.setDiaDeCobro(itActual.getDia() + params.getDiasParaPagarStockOut());
+
+    if ((demandaActual.getStock() < 0 && demandaActual.getCantidad() > 0)) {
+      ksAGuardar.setDiaDeuda(String.valueOf(itActual.getDia()));
+      ksAGuardar.setKs(Math.abs(demandaActual.getStock() * params.getCostoStockout()));
+      int proxCobro = itActual.getDia() + params.getDiasParaPagarStockOut();
+      ksAGuardar.setProxCobro(String.valueOf(proxCobro));
+      ksAGuardar.setDeudasPendientes(proxCobrosKs.size() + 1);
+      proxCobrosKs.add(ksAGuardar);
     }
-    return ks;
+
+    Optional<Ks> posibleKsACobrar = getProxKs();
+    if (posibleKsACobrar.isPresent()) {
+      ksAMostrar.setProxCobro(posibleKsACobrar.get().getProxCobro());
+      ksAMostrar.setDiaDeuda(posibleKsACobrar.get().getDiaDeuda());
+      if (posibleKsACobrar.get().getProxCobro().equals(String.valueOf(itActual.getDia()))) {
+        ksAMostrar.setKs(posibleKsACobrar.get().getKs());
+        proxCobrosKs.remove(posibleKsACobrar.get());
+      }
+      ksAMostrar.setDeudasPendientes(proxCobrosKs.size());
+    }
+
+    return ksAMostrar;
+  }
+
+  private Optional<Ks> getProxKs() {
+    return proxCobrosKs.stream().min(Comparator.comparing(Ks::getProxCobro));
   }
 
   private double buildKo(Iteracion itActual) {
@@ -209,7 +232,7 @@ public class SimulationServiceImpl implements SimulationService {
     int plazo = -1;
     for (DoubleTuple tuple : this.plazos) {
       if (rnd >= tuple.getX1() && rnd <= tuple.getX2()) {
-        plazo = plazos.indexOf(tuple);
+        plazo = plazos.indexOf(tuple)+1; // TODO: CHECK
       }
     }
     if (plazo == -1) {

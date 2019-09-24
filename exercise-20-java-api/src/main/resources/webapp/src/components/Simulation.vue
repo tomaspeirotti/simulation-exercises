@@ -226,7 +226,7 @@
                                     ofLabel: 'of',
                                     pageLabel: 'page', // for 'pages' mode
                                     allLabel: 'All'}"
-                mode="remote" :totalRows="table.totalRows" :isLoading.sync="table.isLoading"
+                mode="remote" :totalRows="table.totalRows"
                 styleClass="vgt-table condensed" theme="nocturnal" :columns="table.columns" :rows="table.rows"
                 @on-page-change="onPageChange" @on-per-page-change="onPerPageChange"/>
         <br>
@@ -350,8 +350,22 @@
                             tdClass: 'text-center'
                         },
                         {
-                            label: 'Ks.DiaCobro',
-                            field: 'ks.diaDeCobro',
+                            label: 'Ks.ProxCobro',
+                            field: 'ks.proxCobro',
+                            type: 'number',
+                            sortable: false,
+                            tdClass: 'text-center'
+                        },
+                        {
+                            label: 'Ks.DiaDeuda',
+                            field: 'ks.diaDeuda',
+                            type: 'number',
+                            sortable: false,
+                            tdClass: 'text-center'
+                        },
+                        {
+                            label: 'Ks.Pendientes',
+                            field: 'ks.deudasPendientes',
                             type: 'number',
                             sortable: false,
                             tdClass: 'text-center'
@@ -485,7 +499,7 @@
                 this.getIteracion(params.currentPage, params.currentPerPage)
             },
             onPerPageChange(params) {
-                this.table.perPage = params.currentPerPage
+                this.table.perPage = params.currentPerPage;
             },
             getIteracion(page, size) {
                 this.table.rows = [];

@@ -5,5 +5,7 @@ import lombok.Data;
 @Data
 public class Ks {
   private double ks;
-  private int diaDeCobro;
+  private String proxCobro;
+  private String diaDeuda;
+  private int deudasPendientes;
 }
