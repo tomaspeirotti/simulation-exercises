@@ -2,15 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="992a6cc8-5063-4e52-b2ed-c22829d8e9f7" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../Final Ej 243 por Guillermo Ojeda/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exercise_241_java-swing.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/entities/Iteracion.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/MainWindow.form" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/MainWindow.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/Simulation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../exercise-257-java-api/src/main/java/com/simulation/service/CSVBusiness.java" beforeDir="false" afterPath="$PROJECT_DIR$/../exercise-257-java-api/src/main/java/com/simulation/service/CSVManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../exercise-257-java/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Final Ej 243 por Guillermo Ojeda/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Final Ej 243 por Guillermo Ojeda/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../exercise-241-java-swing/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../exercise-241-java-swing/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../exercise-241-java-swing/out/production/exercise_241_java-swing/MainWindow$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../exercise-241-java-swing/out/production/exercise_241_java-swing/MainWindow$MyHourFilter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../exercise-241-java-swing/out/production/exercise_241_java-swing/MainWindow$MyIntFilter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../exercise-241-java-swing/out/production/exercise_241_java-swing/MainWindow.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../exercise-241-java-swing/src/main/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/../exercise-241-java-swing/src/main/MainWindow.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -23,6 +21,7 @@
     <session id="-867339911">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
+          <entry key="project.closed" value="1" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.opened" value="1" />
         </counts>
@@ -54,48 +53,7 @@
     </session>
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/MainWindow.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="599">
-              <caret line="63" column="29" selection-start-line="63" selection-start-column="29" selection-end-line="63" selection-end-column="29" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/Simulation.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="483">
-              <caret line="27" column="19" lean-forward="true" selection-start-line="27" selection-start-column="19" selection-end-line="27" selection-end-column="19" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#861#862#0" expanded="true" />
-                <element signature="e#903#904#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/entities/Iteracion.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="46">
-              <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/MainWindow.form">
-          <provider selected="true" editor-type-id="ui-designer" />
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -188,7 +146,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1551227301183" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1551228605805" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../exercise-241-java-swing" />
   </component>
   <component name="RecentsManager">
@@ -253,16 +211,15 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1551224797376</updated>
-      <workItem from="1551224798856" duration="2501000" />
+      <workItem from="1551224798856" duration="3214000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2501000" />
+    <option name="totallyTimeSpent" value="3214000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1616" height="876" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Image Layers" />
       <window_info id="Designer" />
@@ -318,16 +275,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/MainWindow.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="599">
-          <caret line="63" column="29" selection-start-line="63" selection-start-column="29" selection-end-line="63" selection-end-column="29" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/entities/Iteracion.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="46">
@@ -343,6 +290,16 @@
             <element signature="imports" expanded="true" />
             <element signature="e#861#862#0" expanded="true" />
             <element signature="e#903#904#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/MainWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="599">
+          <caret line="63" column="29" selection-start-line="63" selection-start-column="29" selection-end-line="63" selection-end-column="29" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>

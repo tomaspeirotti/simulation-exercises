@@ -12,9 +12,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * Created by Guillermo on 3/5/2017.
- */
 public class MainWindow {
     private JButton buttonSimular;
     private JTable tableResults;
