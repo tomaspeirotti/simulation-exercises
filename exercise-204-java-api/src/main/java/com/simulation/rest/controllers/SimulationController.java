@@ -1,6 +1,7 @@
 package com.simulation.rest.controllers;
 
-import com.simulation.model.clases.IterationsResponseDTO;
+import com.simulation.model.clases.Politica;
+import com.simulation.model.dto.IterationsResponseDTO;
 import com.simulation.model.dto.ParametrosDTO;
 import com.simulation.service.SimulationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,8 @@ public class SimulationController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "iterations")
-  public IterationsResponseDTO getPage(int page, int size) {
-    return this.simulationService.getIterations(page, size);
+  public IterationsResponseDTO getPage(int page, int size, Politica politica) {
+    return this.simulationService.getIterations(page, size, politica);
   }
 
   @RequestMapping(method = RequestMethod.GET)

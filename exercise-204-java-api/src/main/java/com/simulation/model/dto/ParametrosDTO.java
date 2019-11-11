@@ -5,14 +5,9 @@ import lombok.Data;
 @Data
 public class ParametrosDTO {
 
-    private int diasDeOperacion;
-    private int cantReposicion;
-    private int nivelReposicion;
-    private int diasParaReponer;
-    private int stockInicial;
-    private int costoMantenimiento;
-    private int costoOrdenamiento;
-    private int costoStockout;
-    private int diasParaPagarStockOut;
+  private int ingresos_excelente;
+  private int ingresos_buena;
+  private int ingresos_mala;
+  private int reparacion;
 
 }

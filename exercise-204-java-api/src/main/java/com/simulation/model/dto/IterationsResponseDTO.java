@@ -1,5 +1,6 @@
-package com.simulation.model.clases;
+package com.simulation.model.dto;
 
+import com.simulation.model.clases.Iteracion;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
