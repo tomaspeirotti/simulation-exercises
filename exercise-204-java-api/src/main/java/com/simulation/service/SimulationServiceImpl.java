@@ -8,6 +8,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,6 +25,7 @@ public class SimulationServiceImpl implements SimulationService {
   private LinkedList<Iteracion> iteracionesA;
   private LinkedList<Iteracion> iteracionesB;
   private LinkedList<Iteracion> iteracionesC;
+  private List<Double> randoms = new ArrayList<>();
 
   public SimulationServiceImpl() {}
 
@@ -31,9 +33,11 @@ public class SimulationServiceImpl implements SimulationService {
   public SimulationResponseDTO startSimulation(ParametrosDTO parametrosDTO) {
     this.params = parametrosDTO;
 
-    iteracionesA = this.simulatePolitica(Politica.A);
-    iteracionesB = this.simulatePolitica(Politica.B);
-    iteracionesC = this.simulatePolitica(Politica.C);
+    this.randoms = this.initRandoms();
+
+    iteracionesA = this.simulatePoliticaA();
+    iteracionesB = this.simulatePoliticaB();
+    iteracionesC = this.simulatePoliticaC();
 
     int balancePoliticaA = iteracionesA.getLast().getBalance();
     int balancePoliticaB = iteracionesB.getLast().getBalance();
@@ -51,29 +55,105 @@ public class SimulationServiceImpl implements SimulationService {
             .build();
   }
 
-  private LinkedList<Iteracion> simulatePolitica(Politica politica) {
-    switch (politica) {
-      case A:
-        return this.simulatePoliticaA();
-      case B:
-        return this.simulatePoliticaB();
-      case C:
-        return this.simulatePoliticaC();
-      default:
-        throw new IllegalArgumentException();
-    }
-  }
-
   private LinkedList<Iteracion> simulatePoliticaC() {
-    return null;
+    LinkedList<Iteracion> iteraciones = new LinkedList<>();
+    do {
+      Iteracion itPasada;
+      try {
+        itPasada = iteraciones.getLast();
+      } catch (NoSuchElementException e) {
+        itPasada = Iteracion.initC();
+        iteraciones.add(itPasada);
+        log.info("Iteracion initialized for Politica C");
+      }
+      Iteracion itActual = new Iteracion();
+      BeanUtils.copyProperties(itPasada, itActual);
+      itActual.nextSemana();
+      double rnd = this.randoms.get(itActual.getSemana()-1);
+      itActual.setRnd(rnd);
+      if (itActual.getEstado().equals(Estado.MALA)) {
+        itActual.setEstado(Estado.EXCELENTE);
+        itActual.setReparacion(params.getCosto_reparacion());
+        itActual.setSemanasSinReparacion(0);
+      } else {
+        itActual.setEstado(this.getProximoEstado(rnd, itActual.getEstado()));
+        itActual.setReparacion(0);
+        itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() + 1);
+      }
+      itActual.setIngresos(this.getIngresosPorEstado(itActual.getEstado()));
+      itActual.setCantidadReparaciones(itActual.getReparacion() > 0 ? itActual.getCantidadReparaciones() + 1 : itActual.getCantidadReparaciones());
+      itActual.setBalance(itActual.getBalance() + itActual.getIngresos() - itActual.getReparacion());
+      iteraciones.add(itActual);
+    } while(iteraciones.size() < params.getSemanas());
+
+    return iteraciones;
   }
 
   private LinkedList<Iteracion> simulatePoliticaB() {
-    return null;
+    LinkedList<Iteracion> iteraciones = new LinkedList<>();
+    do {
+      Iteracion itPasada;
+      try {
+        itPasada = iteraciones.getLast();
+      } catch (NoSuchElementException e) {
+        itPasada = Iteracion.initB();
+        iteraciones.add(itPasada);
+        log.info("Iteracion initialized for Politica B");
+      }
+      Iteracion itActual = new Iteracion();
+      BeanUtils.copyProperties(itPasada, itActual);
+      itActual.nextSemana();
+      itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : itActual.getSemanasSinReparacion());
+      double rnd = this.randoms.get(itActual.getSemana()-1);
+      itActual.setRnd(rnd);
+      if (itActual.getSemanasSinReparacion() == 0 && itActual.getEstado().equals(Estado.MALA)) {
+        itActual.setEstado(Estado.EXCELENTE);
+        itActual.setReparacion(params.getCosto_reparacion());
+        itActual.setSemanasSinReparacion(0);
+      } else if (itActual.getSemanasSinReparacion() == 0 && !itActual.getEstado().equals(Estado.MALA)) {
+        itActual.setEstado(this.getProximoEstado(rnd, itActual.getEstado()));
+        itActual.setReparacion(0);
+        itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : 0);
+      } else {
+        itActual.setEstado(this.getProximoEstado(rnd, itActual.getEstado()));
+        itActual.setReparacion(0);
+        itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() - 1);
+      }
+      itActual.setIngresos(this.getIngresosPorEstado(itActual.getEstado()));
+      itActual.setCantidadReparaciones(itActual.getReparacion() > 0 ? itActual.getCantidadReparaciones() + 1 : itActual.getCantidadReparaciones());
+      itActual.setBalance(itActual.getBalance() + itActual.getIngresos() - itActual.getReparacion());
+      iteraciones.add(itActual);
+    } while(iteraciones.size() < params.getSemanas());
+
+    return iteraciones;
   }
 
   private LinkedList<Iteracion> simulatePoliticaA() {
-    return null;
+    LinkedList<Iteracion> iteraciones = new LinkedList<>();
+    do {
+      Iteracion itPasada;
+      try {
+        itPasada = iteraciones.getLast();
+      } catch (Exception e) {
+        itPasada = Iteracion.initA();
+        iteraciones.add(itPasada);
+        log.info("Iteracion initialized for Politica A");
+      }
+      Iteracion itActual = new Iteracion();
+      BeanUtils.copyProperties(itPasada, itActual);
+      itActual.nextSemana();
+      itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : 6);
+      double rnd = this.randoms.get(itActual.getSemana()-1);
+      itActual.setRnd(rnd);
+      itActual.setEstado(itActual.getSemanasSinReparacion() == 0 ? Estado.EXCELENTE : this.getProximoEstado(rnd, itActual.getEstado()));
+      itActual.setIngresos(this.getIngresosPorEstado(itActual.getEstado()));
+      itActual.setReparacion(itActual.getSemanasSinReparacion() == 0 ? params.getCosto_reparacion() : 0);
+      itActual.setCantidadReparaciones(itActual.getReparacion() > 0 ? itActual.getCantidadReparaciones() + 1 : itActual.getCantidadReparaciones());
+      itActual.setBalance(itActual.getBalance() + itActual.getIngresos() - itActual.getReparacion());
+      iteraciones.add(itActual);
+    } while(iteraciones.size() < params.getSemanas());
+
+    return iteraciones;
   }
 
   @Override
@@ -106,14 +186,14 @@ public class SimulationServiceImpl implements SimulationService {
     estados.add(
         EstadoBuilder.builder()
             .actual(Estado.EXCELENTE)
-            .limites(new DoubleTuple(0.00, 0.69))
+            .limites(new DoubleTuple(0.00, 0.7))
             .posibleProximoEstado(Estado.EXCELENTE)
             .build());
 
     estados.add(
         EstadoBuilder.builder()
             .actual(Estado.EXCELENTE)
-            .limites(new DoubleTuple(0.7, 0.89))
+            .limites(new DoubleTuple(0.7, 0.9))
             .posibleProximoEstado(Estado.BUENA)
             .build());
 
@@ -134,7 +214,7 @@ public class SimulationServiceImpl implements SimulationService {
     estados.add(
         EstadoBuilder.builder()
             .actual(Estado.BUENA)
-            .limites(new DoubleTuple(0.0, 0.69))
+            .limites(new DoubleTuple(0.0, 0.7))
             .posibleProximoEstado(Estado.BUENA)
             .build());
 
@@ -155,7 +235,7 @@ public class SimulationServiceImpl implements SimulationService {
     estados.add(
         EstadoBuilder.builder()
             .actual(Estado.MALA)
-            .limites(new DoubleTuple(0.0, 0.09))
+            .limites(new DoubleTuple(0.0, 0.1))
             .posibleProximoEstado(Estado.BUENA)
             .build());
 
@@ -172,10 +252,23 @@ public class SimulationServiceImpl implements SimulationService {
   private Estado getProximoEstado(double rnd, Estado actual) {
     return estados.stream()
         .filter(estado -> estado.getActual().equals(actual))
-        .filter(estado -> estado.getLimites().getX1() >= rnd && estado.getLimites().getX2() <= rnd)
+        .filter(estado -> estado.getLimites().getX2() > rnd && estado.getLimites().getX1() <= rnd)
         .findAny()
         .orElseThrow(IllegalStateException::new)
         .getPosibleProximoEstado();
+  }
+
+  private int getIngresosPorEstado(Estado estado) {
+    switch (estado) {
+      case MALA:
+        return params.getIngresos_mala();
+      case BUENA:
+        return params.getIngresos_buena();
+      case EXCELENTE:
+        return params.getIngresos_excelente();
+      default:
+        return 0;
+    }
   }
 
   private double getRandom() {
@@ -188,5 +281,13 @@ public class SimulationServiceImpl implements SimulationService {
   private static double roundAvoid(double value, int places) {
     double scale = Math.pow(10, places);
     return Math.round(value * scale) / scale;
+  }
+
+  private List<Double> initRandoms() {
+    List<Double> randoms = new ArrayList<>();
+    for (int i = 0; i < params.getSemanas(); i++) {
+      randoms.add(this.getRandom());
+    }
+    return randoms;
   }
 }
