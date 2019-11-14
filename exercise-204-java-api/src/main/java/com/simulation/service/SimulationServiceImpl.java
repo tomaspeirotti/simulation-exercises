@@ -106,11 +106,12 @@ public class SimulationServiceImpl implements SimulationService {
       itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : itActual.getSemanasSinReparacion());
       double rnd = this.randoms.get(itActual.getSemana()-1);
       itActual.setRnd(rnd);
-      if (itActual.getSemanasSinReparacion() == 0 && itActual.getEstado().equals(Estado.MALA)) {
+      if (itActual.getEstado().equals(Estado.MALA) && itActual.getSemanasSinReparacion() == 0) {
         itActual.setEstado(Estado.EXCELENTE);
         itActual.setReparacion(params.getCosto_reparacion());
         itActual.setSemanasSinReparacion(0);
-      } else if (itActual.getSemanasSinReparacion() == 0 && !itActual.getEstado().equals(Estado.MALA)) {
+      } else if ((itActual.getSemanasSinReparacion() == 0 && !itActual.getEstado().equals(Estado.MALA)
+              || (itActual.getSemanasSinReparacion() > 0 && itActual.getEstado().equals(Estado.MALA)))) {
         itActual.setEstado(this.getProximoEstado(rnd, itActual.getEstado()));
         itActual.setReparacion(0);
         itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : 0);
