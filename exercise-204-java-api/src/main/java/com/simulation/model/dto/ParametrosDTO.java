@@ -5,10 +5,10 @@ import lombok.Data;
 @Data
 public class ParametrosDTO {
 
-  private int ingresos_excelente;
-  private int ingresos_buena;
-  private int ingresos_mala;
-  private int costo_reparacion;
+  private int ingresosExcelente;
+  private int ingresosBueno;
+  private int ingresosMalo;
+  private int costoReparacion;
   private int semanas;
 
 }

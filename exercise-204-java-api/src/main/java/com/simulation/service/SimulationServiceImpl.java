@@ -73,7 +73,7 @@ public class SimulationServiceImpl implements SimulationService {
       itActual.setRnd(rnd);
       if (itActual.getEstado().equals(Estado.MALA)) {
         itActual.setEstado(Estado.EXCELENTE);
-        itActual.setReparacion(params.getCosto_reparacion());
+        itActual.setReparacion(params.getCostoReparacion());
         itActual.setSemanasSinReparacion(0);
       } else {
         itActual.setEstado(this.getProximoEstado(rnd, itActual.getEstado()));
@@ -108,7 +108,7 @@ public class SimulationServiceImpl implements SimulationService {
       itActual.setRnd(rnd);
       if (itActual.getEstado().equals(Estado.MALA) && itActual.getSemanasSinReparacion() == 0) {
         itActual.setEstado(Estado.EXCELENTE);
-        itActual.setReparacion(params.getCosto_reparacion());
+        itActual.setReparacion(params.getCostoReparacion());
         itActual.setSemanasSinReparacion(0);
       } else if ((itActual.getSemanasSinReparacion() == 0 && !itActual.getEstado().equals(Estado.MALA)
               || (itActual.getSemanasSinReparacion() > 0 && itActual.getEstado().equals(Estado.MALA)))) {
@@ -148,7 +148,7 @@ public class SimulationServiceImpl implements SimulationService {
       itActual.setRnd(rnd);
       itActual.setEstado(itActual.getSemanasSinReparacion() == 0 ? Estado.EXCELENTE : this.getProximoEstado(rnd, itActual.getEstado()));
       itActual.setIngresos(this.getIngresosPorEstado(itActual.getEstado()));
-      itActual.setReparacion(itActual.getSemanasSinReparacion() == 0 ? params.getCosto_reparacion() : 0);
+      itActual.setReparacion(itActual.getSemanasSinReparacion() == 0 ? params.getCostoReparacion() : 0);
       itActual.setCantidadReparaciones(itActual.getReparacion() > 0 ? itActual.getCantidadReparaciones() + 1 : itActual.getCantidadReparaciones());
       itActual.setBalance(itActual.getBalance() + itActual.getIngresos() - itActual.getReparacion());
       iteraciones.add(itActual);
@@ -262,11 +262,11 @@ public class SimulationServiceImpl implements SimulationService {
   private int getIngresosPorEstado(Estado estado) {
     switch (estado) {
       case MALA:
-        return params.getIngresos_mala();
+        return params.getIngresosMalo();
       case BUENA:
-        return params.getIngresos_buena();
+        return params.getIngresosBueno();
       case EXCELENTE:
-        return params.getIngresos_excelente();
+        return params.getIngresosExcelente();
       default:
         return 0;
     }
