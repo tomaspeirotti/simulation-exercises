@@ -154,8 +154,8 @@
             </b-col>
         </b-row>
         <b-row class="justify-content-md-center mb-4">
-            <b-col class="px-3" sm="2">
-                <h3>Política A</h3>
+            <b-col class="px-6" sm="12">
+                <h3>Política A: Reparar cada 6 semanas, independiente del estado</h3>
             </b-col>
         </b-row>
         <vue-good-table
@@ -178,8 +178,8 @@
                 @on-page-change="onPageChangeA" @on-per-page-change="onPerPageChangeA"/>
         <br>
         <b-row class="justify-content-md-center mb-4">
-            <b-col class="px-3" sm="2">
-                <h3>Política B</h3>
+            <b-col class="px-6" sm="12">
+                <h3>Política B: Reparar cada 4 semanas o cuando el estado sea malo, lo que venga mas tarde.</h3>
             </b-col>
         </b-row>
         <vue-good-table
@@ -202,8 +202,8 @@
                 @on-page-change="onPageChangeB" @on-per-page-change="onPerPageChangeB"/>
         <br>
         <b-row class="justify-content-md-center mb-4">
-            <b-col class="px-3" sm="2">
-                <h3>Política C</h3>
+            <b-col class="px-6" sm="12">
+                <h3>Política C: Reparar cuando su estado sea Mala</h3>
             </b-col>
         </b-row>
         <vue-good-table
