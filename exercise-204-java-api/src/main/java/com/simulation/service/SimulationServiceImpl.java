@@ -43,16 +43,19 @@ public class SimulationServiceImpl implements SimulationService {
     int balancePoliticaB = iteracionesB.getLast().getBalance();
     int balancePoliticaC = iteracionesC.getLast().getBalance();
 
-    Politica politicaGanadora = Stream.of(iteracionesA, iteracionesB, iteracionesC)
+    Politica politicaGanadora =
+        Stream.of(iteracionesA, iteracionesB, iteracionesC)
             .max(Comparator.comparingInt(it -> it.getLast().getBalance()))
-            .get().getLast().getPolitica();
+            .get()
+            .getLast()
+            .getPolitica();
 
     return SimulationResponseDTO.builder()
-            .balancePoliticaA(balancePoliticaA)
-            .balancePoliticaB(balancePoliticaB)
-            .balancePoliticaC(balancePoliticaC)
-            .politicaGanadora(politicaGanadora)
-            .build();
+        .balancePoliticaA(balancePoliticaA)
+        .balancePoliticaB(balancePoliticaB)
+        .balancePoliticaC(balancePoliticaC)
+        .politicaGanadora(politicaGanadora)
+        .build();
   }
 
   private LinkedList<Iteracion> simulatePoliticaC() {
@@ -69,7 +72,7 @@ public class SimulationServiceImpl implements SimulationService {
       Iteracion itActual = new Iteracion();
       BeanUtils.copyProperties(itPasada, itActual);
       itActual.nextSemana();
-      double rnd = this.randoms.get(itActual.getSemana()-1);
+      double rnd = this.randoms.get(itActual.getSemana() - 1);
       itActual.setRnd(rnd);
       if (itActual.getEstado().equals(Estado.MALA)) {
         itActual.setEstado(Estado.EXCELENTE);
@@ -81,10 +84,14 @@ public class SimulationServiceImpl implements SimulationService {
         itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() + 1);
       }
       itActual.setIngresos(this.getIngresosPorEstado(itActual.getEstado()));
-      itActual.setCantidadReparaciones(itActual.getReparacion() > 0 ? itActual.getCantidadReparaciones() + 1 : itActual.getCantidadReparaciones());
-      itActual.setBalance(itActual.getBalance() + itActual.getIngresos() - itActual.getReparacion());
+      itActual.setCantidadReparaciones(
+          itActual.getReparacion() > 0
+              ? itActual.getCantidadReparaciones() + 1
+              : itActual.getCantidadReparaciones());
+      itActual.setBalance(
+          itActual.getBalance() + itActual.getIngresos() - itActual.getReparacion());
       iteraciones.add(itActual);
-    } while(iteraciones.size() < params.getSemanas());
+    } while (iteraciones.size() < params.getSemanas());
 
     return iteraciones;
   }
@@ -103,28 +110,34 @@ public class SimulationServiceImpl implements SimulationService {
       Iteracion itActual = new Iteracion();
       BeanUtils.copyProperties(itPasada, itActual);
       itActual.nextSemana();
-      itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : itActual.getSemanasSinReparacion());
-      double rnd = this.randoms.get(itActual.getSemana()-1);
+      double rnd = this.randoms.get(itActual.getSemana() - 1);
       itActual.setRnd(rnd);
       if (itActual.getEstado().equals(Estado.MALA) && itActual.getSemanasSinReparacion() == 0) {
         itActual.setEstado(Estado.EXCELENTE);
         itActual.setReparacion(params.getCostoReparacion());
-        itActual.setSemanasSinReparacion(0);
-      } else if ((itActual.getSemanasSinReparacion() == 0 && !itActual.getEstado().equals(Estado.MALA)
-              || (itActual.getSemanasSinReparacion() > 0 && itActual.getEstado().equals(Estado.MALA)))) {
+        itActual.setSemanasSinReparacion(4);
+      } else if ((itActual.getSemanasSinReparacion() == 0
+              && !itActual.getEstado().equals(Estado.MALA)
+          || (itActual.getSemanasSinReparacion() > 0
+              && itActual.getEstado().equals(Estado.MALA)))) {
         itActual.setEstado(this.getProximoEstado(rnd, itActual.getEstado()));
         itActual.setReparacion(0);
-        itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : 0);
+        itActual.setSemanasSinReparacion(
+            itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : 0);
       } else {
         itActual.setEstado(this.getProximoEstado(rnd, itActual.getEstado()));
         itActual.setReparacion(0);
         itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() - 1);
       }
       itActual.setIngresos(this.getIngresosPorEstado(itActual.getEstado()));
-      itActual.setCantidadReparaciones(itActual.getReparacion() > 0 ? itActual.getCantidadReparaciones() + 1 : itActual.getCantidadReparaciones());
-      itActual.setBalance(itActual.getBalance() + itActual.getIngresos() - itActual.getReparacion());
+      itActual.setCantidadReparaciones(
+          itActual.getReparacion() > 0
+              ? itActual.getCantidadReparaciones() + 1
+              : itActual.getCantidadReparaciones());
+      itActual.setBalance(
+          itActual.getBalance() + itActual.getIngresos() - itActual.getReparacion());
       iteraciones.add(itActual);
-    } while(iteraciones.size() < params.getSemanas());
+    } while (iteraciones.size() < params.getSemanas());
 
     return iteraciones;
   }
@@ -143,16 +156,25 @@ public class SimulationServiceImpl implements SimulationService {
       Iteracion itActual = new Iteracion();
       BeanUtils.copyProperties(itPasada, itActual);
       itActual.nextSemana();
-      itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : 6);
-      double rnd = this.randoms.get(itActual.getSemana()-1);
+      itActual.setSemanasSinReparacion(
+          itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : 6);
+      double rnd = this.randoms.get(itActual.getSemana() - 1);
       itActual.setRnd(rnd);
-      itActual.setEstado(itActual.getSemanasSinReparacion() == 0 ? Estado.EXCELENTE : this.getProximoEstado(rnd, itActual.getEstado()));
+      itActual.setEstado(
+          itActual.getSemanasSinReparacion() == 0
+              ? Estado.EXCELENTE
+              : this.getProximoEstado(rnd, itActual.getEstado()));
       itActual.setIngresos(this.getIngresosPorEstado(itActual.getEstado()));
-      itActual.setReparacion(itActual.getSemanasSinReparacion() == 0 ? params.getCostoReparacion() : 0);
-      itActual.setCantidadReparaciones(itActual.getReparacion() > 0 ? itActual.getCantidadReparaciones() + 1 : itActual.getCantidadReparaciones());
-      itActual.setBalance(itActual.getBalance() + itActual.getIngresos() - itActual.getReparacion());
+      itActual.setReparacion(
+          itActual.getSemanasSinReparacion() == 0 ? params.getCostoReparacion() : 0);
+      itActual.setCantidadReparaciones(
+          itActual.getReparacion() > 0
+              ? itActual.getCantidadReparaciones() + 1
+              : itActual.getCantidadReparaciones());
+      itActual.setBalance(
+          itActual.getBalance() + itActual.getIngresos() - itActual.getReparacion());
       iteraciones.add(itActual);
-    } while(iteraciones.size() < params.getSemanas());
+    } while (iteraciones.size() < params.getSemanas());
 
     return iteraciones;
   }
@@ -251,6 +273,19 @@ public class SimulationServiceImpl implements SimulationService {
   }
 
   private Estado getProximoEstado(double rnd, Estado actual) {
+    //    List<EstadoBuilder> estadosList = estados.stream()
+    //            .filter(estado -> estado.getActual().equals(actual))
+    //            .filter(estado -> estado.getLimites().getX2() > rnd && estado.getLimites().getX1()
+    // <= rnd)
+    //            .collect(Collectors.toList());
+    //
+    //    if (estadosList.size() > 1) {
+    //      log.warn("Estado Actual [{}] - Returned two states for one random: [{}] [{}]", actual,
+    // rnd, estadosList);
+    //    } else if (estadosList.isEmpty()) {
+    //      log.error("No state found for rnd [{}] - Actual [{}]", rnd, actual);
+    //    }
+
     return estados.stream()
         .filter(estado -> estado.getActual().equals(actual))
         .filter(estado -> estado.getLimites().getX2() > rnd && estado.getLimites().getX1() <= rnd)

@@ -245,63 +245,55 @@
                         isLoading: false,
                         totalRows: 0,
                         currentPage: 1,
-                        perPage: 10,
+                        perPage: 25,
                         columns: [
                             {
                                 label: 'Semana',
                                 field: 'semana',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'RND',
                                 field: 'rnd',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Estado',
                                 field: 'estado',
                                 type: 'text',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Ingresos',
                                 field: 'ingresos',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Reparacion',
                                 field: 'reparacion',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Sem sin rep',
                                 field: 'semanasSinReparacion',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Cant. Rep',
                                 field: 'cantidadReparaciones',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Balance',
                                 field: 'balance',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             }
                         ],
                         rows: [],
@@ -313,63 +305,55 @@
                         isLoading: false,
                         totalRows: 0,
                         currentPage: 1,
-                        perPage: 10,
+                        perPage: 25,
                         columns: [
                             {
                                 label: 'Semana',
                                 field: 'semana',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'RND',
                                 field: 'rnd',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Estado',
                                 field: 'estado',
                                 type: 'text',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Ingresos',
                                 field: 'ingresos',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Reparacion',
                                 field: 'reparacion',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Sem sin rep',
                                 field: 'semanasSinReparacion',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Cant. Rep',
                                 field: 'cantidadReparaciones',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Balance',
                                 field: 'balance',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             }
                         ],
                         rows: [],
@@ -381,63 +365,55 @@
                         isLoading: false,
                         totalRows: 0,
                         currentPage: 1,
-                        perPage: 10,
+                        perPage: 25,
                         columns: [
                             {
                                 label: 'Semana',
                                 field: 'semana',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'RND',
                                 field: 'rnd',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Estado',
                                 field: 'estado',
                                 type: 'text',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Ingresos',
                                 field: 'ingresos',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Reparacion',
                                 field: 'reparacion',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Sem sin rep',
                                 field: 'semanasSinReparacion',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Cant. Rep',
                                 field: 'cantidadReparaciones',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             },
                             {
                                 label: 'Balance',
                                 field: 'balance',
                                 type: 'number',
-                                sortable: false,
-                                tdClass: 'text-center'
+                                sortable: false
                             }
                         ],
                         rows: [],
