@@ -79,7 +79,7 @@
                         <label>Ingresos</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" id="ingresosBuena">Bueno</span>
+                                <span class="input-group-text" id="ingresosBuena">Buena</span>
                             </div>
                             <input type="text" class="form-control" v-model.number="simulation.ingresosBueno">
                         </div>
@@ -100,7 +100,7 @@
                         <label>Ingresos</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" id="ingresosMalo">Malo</span>
+                                <span class="input-group-text" id="ingresosMalo">Mala</span>
                             </div>
                             <input type="text" class="form-control" v-model.number="simulation.ingresosMalo">
                         </div>
@@ -260,6 +260,12 @@
                                 sortable: false
                             },
                             {
+                                label: 'Estado Prev Rep',
+                                field: 'estadoPrevioReparacion',
+                                type: 'text',
+                                sortable: false
+                            },
+                            {
                                 label: 'Estado',
                                 field: 'estado',
                                 type: 'text',
@@ -320,6 +326,12 @@
                                 sortable: false
                             },
                             {
+                                label: 'Estado Prev Rep',
+                                field: 'estadoPrevioReparacion',
+                                type: 'text',
+                                sortable: false
+                            },
+                            {
                                 label: 'Estado',
                                 field: 'estado',
                                 type: 'text',
@@ -377,6 +389,12 @@
                                 label: 'RND',
                                 field: 'rnd',
                                 type: 'number',
+                                sortable: false
+                            },
+                            {
+                                label: 'Estado Prev Rep',
+                                field: 'estadoPrevioReparacion',
+                                type: 'text',
                                 sortable: false
                             },
                             {
@@ -492,6 +510,7 @@
                         this.getIteracionPoliticaA(this.A.table.currentPage, this.A.table.perPage)
                         this.getIteracionPoliticaB(this.B.table.currentPage, this.B.table.perPage)
                         this.getIteracionPoliticaC(this.C.table.currentPage, this.C.table.perPage)
+                        alert('La política [ ' + response.data.politicaGanadora + ' ] es la ganadora.')
                     })
                     .catch((result) => alert(result.response.data.message))
                     .finally(() => this.isSimulating = false);

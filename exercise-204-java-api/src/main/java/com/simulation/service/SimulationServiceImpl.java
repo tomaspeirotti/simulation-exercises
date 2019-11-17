@@ -72,9 +72,12 @@ public class SimulationServiceImpl implements SimulationService {
       Iteracion itActual = new Iteracion();
       BeanUtils.copyProperties(itPasada, itActual);
       itActual.nextSemana();
+      itActual.setEstadoPrevioReparacion(null);
       double rnd = this.randoms.get(itActual.getSemana() - 1);
+      Estado proxEstado = this.getProximoEstado(rnd, itActual.getEstado());
       itActual.setRnd(rnd);
-      if (itActual.getEstado().equals(Estado.MALA)) {
+      if (!itActual.getEstado().equals(Estado.MALA) && proxEstado.equals(Estado.MALA)) {
+        itActual.setEstadoPrevioReparacion(proxEstado);
         itActual.setEstado(Estado.EXCELENTE);
         itActual.setReparacion(params.getCostoReparacion());
         itActual.setSemanasSinReparacion(0);
@@ -112,22 +115,17 @@ public class SimulationServiceImpl implements SimulationService {
       itActual.nextSemana();
       double rnd = this.randoms.get(itActual.getSemana() - 1);
       itActual.setRnd(rnd);
-      if (itActual.getEstado().equals(Estado.MALA) && itActual.getSemanasSinReparacion() == 0) {
+      itActual.setEstadoPrevioReparacion(null);
+      Estado proxEstado = this.getProximoEstado(rnd, itActual.getEstado());
+      if (proxEstado.equals(Estado.MALA) && itActual.getSemanasSinReparacion() <= 1) {
+        itActual.setEstadoPrevioReparacion(proxEstado);
         itActual.setEstado(Estado.EXCELENTE);
-        itActual.setReparacion(params.getCostoReparacion());
         itActual.setSemanasSinReparacion(4);
-      } else if ((itActual.getSemanasSinReparacion() == 0
-              && !itActual.getEstado().equals(Estado.MALA)
-          || (itActual.getSemanasSinReparacion() > 0
-              && itActual.getEstado().equals(Estado.MALA)))) {
-        itActual.setEstado(this.getProximoEstado(rnd, itActual.getEstado()));
-        itActual.setReparacion(0);
-        itActual.setSemanasSinReparacion(
-            itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : 0);
+        itActual.setReparacion(params.getCostoReparacion());
       } else {
         itActual.setEstado(this.getProximoEstado(rnd, itActual.getEstado()));
         itActual.setReparacion(0);
-        itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() - 1);
+        itActual.setSemanasSinReparacion(itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : 0);
       }
       itActual.setIngresos(this.getIngresosPorEstado(itActual.getEstado()));
       itActual.setCantidadReparaciones(
@@ -156,17 +154,21 @@ public class SimulationServiceImpl implements SimulationService {
       Iteracion itActual = new Iteracion();
       BeanUtils.copyProperties(itPasada, itActual);
       itActual.nextSemana();
+      itActual.setEstadoPrevioReparacion(null);
       itActual.setSemanasSinReparacion(
           itActual.getSemanasSinReparacion() > 0 ? itActual.getSemanasSinReparacion() - 1 : 6);
       double rnd = this.randoms.get(itActual.getSemana() - 1);
       itActual.setRnd(rnd);
-      itActual.setEstado(
-          itActual.getSemanasSinReparacion() == 0
-              ? Estado.EXCELENTE
-              : this.getProximoEstado(rnd, itActual.getEstado()));
+      Estado proxEstado = this.getProximoEstado(rnd, itActual.getEstado());
+      if (itActual.getSemanasSinReparacion() == 0) {
+        itActual.setEstadoPrevioReparacion(itActual.getEstado());
+        itActual.setEstado(Estado.EXCELENTE);
+        itActual.setReparacion(params.getCostoReparacion());
+      } else {
+        itActual.setReparacion(0);
+        itActual.setEstado(proxEstado);
+      }
       itActual.setIngresos(this.getIngresosPorEstado(itActual.getEstado()));
-      itActual.setReparacion(
-          itActual.getSemanasSinReparacion() == 0 ? params.getCostoReparacion() : 0);
       itActual.setCantidadReparaciones(
           itActual.getReparacion() > 0
               ? itActual.getCantidadReparaciones() + 1

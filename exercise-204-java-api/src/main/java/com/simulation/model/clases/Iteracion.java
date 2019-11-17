@@ -1,6 +1,5 @@
 package com.simulation.model.clases;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +11,7 @@ public class Iteracion {
   private int semana;
   private double rnd;
   private Estado estado;
+  private Estado estadoPrevioReparacion;
   private int ingresos;
   private int reparacion;
   private int semanasSinReparacion;
